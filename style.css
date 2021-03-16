@@ -1,0 +1,75 @@
+.align-page-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.content-container {
+  max-width: 1080px;
+}
+
+.mdl-navigation .mdl-navigation__link .material-icons {
+    font-size: 24px;
+    color: rgba(255, 255, 255, 0.56);
+    margin-right: 32px;
+}
+
+.page-list, .page-table {
+  width: 100%;
+}
+
+.mdl-card__supporting-text {
+  width: 100% !important;
+}
+
+.scrollable-list {
+  max-height: 600px;
+  list-style-type: none;
+  overflow: auto;
+  padding: 0;
+  margin: 16px 0 0 0;
+}
+
+.scrollable-list .mdl-list__item {
+  transition: 0.1s background-color linear;
+}
+
+.scrollable-list .mdl-list__item.non-active {
+  background-color: #f5f5f5;
+}
+
+.scrollable-list .mdl-list__item.selected {
+  background-color: #c5cae9;
+}
+
+.scrollable-list .mdl-list__item:hover {
+  background-color: #e0e0e0;
+}
+
+.mdl-card__actions {
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  margin-top: 16px;
+  padding: 8px 0px 0px 0px;
+}
+
+.mdl-card__actions button.mdl-button.mdl-js-button.mdl-button--raised.mdl-button--accent {
+  margin-left: 8px;
+}
+
+.btn-align-right {
+  margin-left: auto;
+}
+
+.carditem-border-bottom {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  width: 100%;
+  display: flex;
+}
+
+.carditem-border-top {
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  width: 100%;
+  display: flex;
+  margin-top: 16px;
+}
