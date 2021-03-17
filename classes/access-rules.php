@@ -18,6 +18,16 @@ class AccessRules {
     return -1;
   }
 
+  public static function getRoleRow($role_id) {
+    $res = Database::query('SELECT * FROM `roles` WHERE `id` = :id', array('id' => $role_id));
+
+    if(count($res) > 0) {
+      return $res[0];
+    } else {
+      return array();
+    }
+  }
+
   public static function getRolePermissionsList($role_id) {
     $res = Database::query('SELECT `permissions_id` FROM `roles_permissions` WHERE `roles_id` = :rid', array('rid' => $role_id));
     $tmp_arr = [];
@@ -88,6 +98,11 @@ class AccessRules {
     return $res[0][0] == '1';
   }
 
+  public static function roleNameExists($role_name) {
+    $res = Database::query('SELECT COUNT(*) FROM `roles` WHERE `name` = :role_name', array('role_name' => $role_name));
+    return $res[0][0] == '1';
+  }
+
   public static function permissionExists($id) {
     $res = Database::query('SELECT COUNT(*) FROM `permissions` WHERE `id` = :id', array('id' => $id));
     return $res[0][0] == '1';
@@ -137,6 +152,14 @@ class AccessRules {
     }
 
     return $tmp_arr;
+  }
+
+  public static function createRole($role_name, $role_description) {
+    return Database::insertQuery('INSERT INTO `roles` (`name`, `description`) VALUES (:name, :description)', array('name' => $role_name, 'description' => $role_description));
+  }
+
+  public static function setUserRole($user_id, $role_id) {
+    Database::query('UPDATE `users` SET `role_id` = :role_id WHERE `users`.`uid` = :user_id', array('role_id' => $role_id, 'user_id' => $user_id));
   }
 }
 ?>

@@ -8,6 +8,8 @@ class UsersLog {
   public const CREATE_USER = 'CREATE_USER';
   public const GRANT_ROLE_PERMISSION = 'GRANT_ROLE_PERMISSION';
   public const REMOVE_ROLE_PERMISSION = 'REMOVE_ROLE_PERMISSION';
+  public const CREATE_ROLE = 'CREATE_ROLE';
+  public const ASSIGN_ROLE = 'ASSIGN_ROLE';
 
   public static function record($operator_sid, $action, $description) {
     Database::query('INSERT INTO `users_log` (`action`, `action_description`, `operator_session_id`) VALUES (:action, :action_description, :operator_session_id)', array('action' => $action, 'action_description' => $description, 'operator_session_id' => $operator_sid));

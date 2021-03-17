@@ -73,3 +73,12 @@
   display: flex;
   margin-top: 16px;
 }
+
+#createrole-roledesc {
+  min-height: 100px;
+}
+
+#usrinfo-role-selector {
+  width: auto;
+  display: inline;
+}

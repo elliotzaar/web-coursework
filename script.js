@@ -21,8 +21,24 @@ function processRoleSwitchPerm(role_id, perm_id, status) {
   });
 }
 
+function processRoleControlChange(user_id, role_id) {
+  var client = new HttpClient();
+  client.get('webhook.php?change-user-role&user=' + user_id + '&role=' + role_id, function(status, response) {
+      if(status != 200) {
+        alert(response);
+      }
+  });
+}
+
 Array.from(document.getElementsByClassName("role-switch-perms")).forEach(function(e) {
   e.addEventListener('click', function() {
     processRoleSwitchPerm(e.id.split('-')[1], e.id.split('-')[4], e.checked);
   });
 });
+
+var usrinfo_role_selector = document.getElementById("usrinfo-role-selector");
+if(typeof(usrinfo_role_selector) != 'undefined' && usrinfo_role_selector != null){
+  usrinfo_role_selector.addEventListener('change', function() {
+    processRoleControlChange(this.getAttribute('data-userid'), this.value);
+  });
+}

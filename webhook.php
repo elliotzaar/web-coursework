@@ -24,10 +24,10 @@ if(isset($_GET['change-role-perm-status'])) {
     if(AccessRules::roleExists($_GET['role']) && AccessRules::permissionExists($_GET['perm'])) {
       if($_GET['status'] == 'true') {
         AccessRules::addPermission($_GET['role'], $_GET['perm']);
-        UsersLog::record($_COOKIE['sid'], UsersLog::GRANT_ROLE_PERMISSION, 'Додано дозвіл '.AccessRules::getPermission($_GET['perm'])['name'].' (id'.$_GET['perm'].') до ролі '.AccessRules::getRole($_GET['role'])['name'].' (id'.$_GET['role'].')');
+        UsersLog::record($_COOKIE['sid'], UsersLog::GRANT_ROLE_PERMISSION, 'Додано дозвіл '.AccessRules::getPermission($_GET['perm'])['name'].' (id'.$_GET['perm'].') до ролі '.AccessRules::getRoleRow($_GET['role'])['name'].' (id'.$_GET['role'].')');
       } else if($_GET['status'] == 'false') {
         AccessRules::removePermission($_GET['role'], $_GET['perm']);
-        UsersLog::record($_COOKIE['sid'], UsersLog::REMOVE_ROLE_PERMISSION, 'Видалено дозвіл '.AccessRules::getPermission($_GET['perm'])['name'].' (id'.$_GET['perm'].') з ролі '.AccessRules::getRole($_GET['role'])['name'].' id'.$_GET['role'].')');
+        UsersLog::record($_COOKIE['sid'], UsersLog::REMOVE_ROLE_PERMISSION, 'Видалено дозвіл '.AccessRules::getPermission($_GET['perm'])['name'].' (id'.$_GET['perm'].') з ролі '.AccessRules::getRoleRow($_GET['role'])['name'].' id'.$_GET['role'].')');
       } else {
         http_response_code(400);
         die('Incorrect status');
@@ -35,6 +35,19 @@ if(isset($_GET['change-role-perm-status'])) {
     } else {
       http_response_code(400);
       die('Incorrect role or permission');
+    }
+  }
+} else if(isset($_GET['change-user-role'])) {
+  if(!AccessRules::hasPermission('MODIFY_ROLES', $usr_perms)) {
+    http_response_code(401);
+    die('Not enough permissions');
+  } else {
+    if((AccessRules::roleExists($_GET['role']) || $_GET['role'] == '-1') && UserAccount::userExists($_GET['user'])) {
+      AccessRules::setUserRole($_GET['user'], $_GET['role']);
+      UsersLog::record($_COOKIE['sid'], UsersLog::ASSIGN_ROLE, 'Встановлено роль id'.$_GET['role'].' користувачеві '.$_GET['user']);
+    } else {
+      http_response_code(400);
+      die('Incorrect role or user');
     }
   }
 } else {

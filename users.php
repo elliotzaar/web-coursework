@@ -28,11 +28,30 @@ if(isset($_GET['view'])) {
 
     $tmp_usr_role = AccessRules::getRole($view_id);
 
-    if($tmp_usr_role == -1) {
-      $tmp_usr_role = 'не присвоєно';
+    if(!AccessRules::hasPermission('MODIFY_ROLES', $usr_perms)) {
+      if($tmp_usr_role == -1) {
+        $tmp_usr_role = 'не присвоєно';
+      } else {
+        $tmp_usr_role = AccessRules::getRole($view_id)['name'];
+      }
     } else {
-      $tmp_usr_role = AccessRules::getRole($view_id)['name'];
+      $tmp_usr_role_id = -1;
+      if($tmp_usr_role != -1) {
+        $tmp_usr_role_id = $tmp_usr_role['id'];
+      }
+
+      $tmp_usr_role = '<select id="usrinfo-role-selector" class="mdl-textfield__input" data-userid="'.$view_id.'">';
+      $tmp_usr_role .= '<option value="-1"'.($tmp_usr_role_id === -1 ? ' selected' : '').'>не присвоєно</option>';
+
+      $roles_list = AccessRules::getRolesList();
+
+      foreach($roles_list as $r) {
+        $tmp_usr_role .= '<option value='.$r['id'].''.($tmp_usr_role_id === $r['id'] ? ' selected' : '').'>'.$r['name'].'</option>';
+      }
+
+      $tmp_usr_role .= '</select>';
     }
+
 
     $content = '<h2 class="mdl-card__title-text">Інформація про користувача '.UserAccount::getUsername($view_id).'</h2>
     <div class="mdl-card__supporting-text">';
