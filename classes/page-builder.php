@@ -79,8 +79,11 @@ class Page {
     <div class="mdl-layout__drawer">
       <span class="mdl-layout-title">'.$this->title.'</span>
       <nav class="mdl-navigation">
-        <a class="mdl-navigation__link" href="index.php"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">home</i>Головна</a>
-        <a class="mdl-navigation__link" href="accounts.php"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">account_balance_wallet</i>Рахунки</a>
+        <a class="mdl-navigation__link" href="index.php"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">home</i>Головна</a>');
+        if(AccessRules::hasPermission('VIEW_ACCOUNTS', $usr_perms)){
+          echo('        <a class="mdl-navigation__link" href="accounts.php"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">account_balance_wallet</i>Рахунки</a>');
+        }
+        echo('
         <a class="mdl-navigation__link" href="transactions.php"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">payments</i>Транзакції</a>');
         if(AccessRules::hasPermission('VIEW_USERS', $usr_perms)){
           echo('        <a class="mdl-navigation__link" href="users.php"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">group</i>Користувачі</a>');

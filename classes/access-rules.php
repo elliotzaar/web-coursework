@@ -109,7 +109,7 @@ class AccessRules {
   }
 
   public static function getRoleUsersAmount($role_id) {
-    $res = Database::query('SELECT COUNT(*) FROM `users` WHERE `role_id` = :role_id', array('role_id' => $role_id));
+    $res = Database::query('SELECT COUNT(*) FROM `users` WHERE `role_id` = :role_id AND `suspended` = 0', array('role_id' => $role_id));
     return $res[0][0];
   }
 
@@ -142,7 +142,7 @@ class AccessRules {
   }
 
   public static function getRoleUsersList($role_id) {
-    $res =  Database::query('SELECT * FROM `users` WHERE `role_id` = :role_id', array('role_id' => $role_id));
+    $res =  Database::query('SELECT * FROM `users` WHERE `role_id` = :role_id AND `suspended` = 0', array('role_id' => $role_id));
 
     $tmp_arr = [];
     if(count($res) > 0) {
