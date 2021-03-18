@@ -13,7 +13,13 @@ if(!AccessRules::hasPermission('VIEW_ACCOUNTS', $usr_perms)) {
 
 $page = new Page('Рахунки');
 
-$content = '<h2 class="mdl-card__title-text">Пошук рахунків</h2>';
+$content = '';
+
+if(AccessRules::hasPermission('CREATE_ACCOUNTS', $usr_perms)) {
+  $content .= '<div class="carditem-border-bottom"><button onclick="location.href=\'accounts.php?create\'" class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect btn-align-right">Створити</button></div>';
+}
+
+$content .= '<h2'.(AccessRules::hasPermission('CREATE_ACCOUNTS', $usr_perms) ? ' style="margin-top: 8px"' : '').' class="mdl-card__title-text">Пошук рахунків</h2>';
 $content .= '<div class="mdl-card__supporting-text">';
 
 $content .= '<form action="accounts.php" method="get">
@@ -54,7 +60,7 @@ if(isset($_GET['accname']) && isset($_GET['accnum']) && isset($_GET['acccurr']) 
     $content .= '<td class="mdl-data-table__cell--non-numeric">'.$r['name'].'</td>
     <td class="mdl-data-table__cell">'.$r['number'].'</td>
     <td class="mdl-data-table__cell">'.$r['balance'].'</td>
-    <td class="mdl-data-table__cell--non-numeric">'.$r['currency_id'].'</td>
+    <td class="mdl-data-table__cell--non-numeric">'.Currency::getCurrencyRow($r['currency_id'])['code'].'</td>
     <td class="mdl-data-table__cell">'.$r['create_time'].'</td>';
   }
 
