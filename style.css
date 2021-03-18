@@ -88,6 +88,10 @@
   display: inline;
 }
 
-#accnt-search-btn {
+#accnt-search-btn, #new-accnt-btn {
   margin-top: 8px;
+}
+
+#new-accnt-currency-selector {
+  width: 300px;
 }

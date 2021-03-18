@@ -15,8 +15,62 @@ $page = new Page('Рахунки');
 
 $content = '';
 
+if(isset($_GET['create'])) {
+  if(!AccessRules::hasPermission('CREATE_ACCOUNTS', $usr_perms)) {
+    NoPermissionPage::display('Рахунки');
+    die();
+  }
+
+  if(isset($_POST['newaccname']) && isset($_POST['newaccnum']) && isset($_POST['newacccurr'])) {
+    $accbalance = 0.00;
+
+    if(isset($_POST['newaccbalance'])) {
+      $accbalance = floatval($_POST['newaccbalance']);
+    }
+  }
+
+  $content .= '<h2 class="mdl-card__title-text">Новий рахунок</h2>';
+  $content .= '<div class="mdl-card__supporting-text">';
+
+  $content .= '<form action="accounts.php?create" method="post">
+  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+    <input class="mdl-textfield__input" type="text" name="newaccname" id="new-accnt-name">
+    <label class="mdl-textfield__label" for="new-accnt-name">Найменування</label>
+  </div>
+  <br />
+  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+    <input class="mdl-textfield__input" type="text" name="newaccnum" id="new-accnt-number" pattern="-?[A-Z0-9]*(\.[A-Z0-9]+)?">
+    <label class="mdl-textfield__label" for="new-accnt-number">Номер</label>
+  </div>
+  <br />
+
+  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" id="new-accnt-balance-lbl">
+    <label class="mdl-textfield__label" for="new-accnt-balance">Початковий баланс</label>
+    <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="new-accnt-balance-checkbox">
+      <input type="checkbox" id="new-accnt-balance-checkbox" class="mdl-checkbox__input">
+      <span class="mdl-checkbox__label">Є початковий баланс</span>
+    </label>
+    <input class="mdl-textfield__input" type="text" name="newaccbalance" id="new-accnt-balance" hidden disabled value="0.00" pattern="^\d{1,3}(,\d{3})*(\.\d\d)?$">
+  </div>
+  <br />
+  <select id="new-accnt-currency-selector" class="mdl-textfield__input" name="newacccurr">
+  <option value="0">Валюта</option>';
+$currency_list = Currency::getCurrenciesList();
+foreach($currency_list as $r) {
+  $content .= '<option value='.$r['id'].''.((isset($_GET['acccurr']) && $r['id'] == $_GET['acccurr']) ? ' selected' : '').'>'.$r['code'].' - '.$r['name'].'</option>';
+}
+$content .= '</select>';
+$content .= '<br /><button id="new-accnt-btn" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" type="submit">Створити</button>';
+  $content .= '</form>';
+  $content .= '</div>';
+
+  $page->setContent($content);
+  $page->create();
+  die();
+}
+
 if(AccessRules::hasPermission('CREATE_ACCOUNTS', $usr_perms)) {
-  $content .= '<div class="carditem-border-bottom"><button onclick="location.href=\'accounts.php?create\'" class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect btn-align-right">Створити</button></div>';
+  $content .= '<div class="carditem-border-bottom"><button onclick="location.href=\'accounts.php?create\'" class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect btn-align-right">Створити рахунок</button></div>';
 }
 
 $content .= '<h2'.(AccessRules::hasPermission('CREATE_ACCOUNTS', $usr_perms) ? ' style="margin-top: 8px"' : '').' class="mdl-card__title-text">Пошук рахунків</h2>';

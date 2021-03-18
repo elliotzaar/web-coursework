@@ -42,3 +42,18 @@ if(typeof(usrinfo_role_selector) != 'undefined' && usrinfo_role_selector != null
     processRoleControlChange(this.getAttribute('data-userid'), this.value);
   });
 }
+
+var newaccount_balance_checkbox = document.getElementById("new-accnt-balance-checkbox");
+if(typeof(newaccount_balance_checkbox) != 'undefined' && newaccount_balance_checkbox != null){
+  newaccount_balance_checkbox.addEventListener('change', function() {
+    document.getElementById("new-accnt-balance").hidden = !this.checked;
+    document.getElementById("new-accnt-balance").disabled = !this.checked;
+  });
+
+  document.getElementById("new-accnt-balance").addEventListener('focusout', function() {
+    if(this.value == "") {
+      this.value = "0.00";
+      document.getElementById("new-accnt-balance-lbl").classList.add("is-dirty");
+    }
+  });
+}
