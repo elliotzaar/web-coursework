@@ -224,7 +224,7 @@ if(isset($_GET['view'])) {
 
     $content .= '<form action="users.php?create" method="post">
     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label'.(isset($_GET['invalidu']) ? ' is-invalid' : '').'">
-      <input class="mdl-textfield__input" type="text" id="createusr-username" name="createusr-username" minlength="3" maxlength="16" pattern="-?[a-z]*(\.[a-z]+)?">
+      <input class="mdl-textfield__input" type="text" id="createusr-username" name="createusr-username" minlength="3" maxlength="16" pattern="-?[a-z]*([a-z]+)?">
       <label class="mdl-textfield__label" for="createusr-username">Ім\'я користувача</label>
     </div>
     <br />

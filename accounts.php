@@ -198,7 +198,7 @@ if(isset($_GET['accname']) && isset($_GET['accnum']) && isset($_GET['acccurr']) 
   <th class="mdl-data-table__cell">Баланс</th>
   <th class="mdl-data-table__cell--non-numeric">Валюта</th>
   <th class="mdl-data-table__cell">Час створення</th>
-  <th class="mdl-data-table__cell"></th>
+  <th class="mdl-data-table__cell">Дії</th>
   </tr>
   </thead>
   <tbody>';
@@ -211,7 +211,8 @@ if(isset($_GET['accname']) && isset($_GET['accnum']) && isset($_GET['acccurr']) 
     <td class="mdl-data-table__cell">'.$r['balance'].'</td>
     <td class="mdl-data-table__cell--non-numeric">'.Currency::getCurrencyRow($r['currency_id'])['code'].'</td>
     <td class="mdl-data-table__cell">'.$r['create_time'].'</td>
-    <td class="mdl-data-table__cell"><button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" onclick="location.href=\'accounts.php?edit='.$r['id'].'\'"><i class="material-icons">create</i></button></td></tr>';
+    <td class="mdl-data-table__cell"><button class="mdl-button mdl-js-button mdl-button--icon mdl-button--accent" onclick="location.href=\'accounts.php?edit='.$r['id'].'\'"><i class="material-icons">create</i></button>
+    <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" onclick="location.href=\'transactions.php?account='.$r['number'].'\'"><i class="material-icons">payments</i></button></td></tr>';
   }
 
   $content .= '</tbody></table>';
