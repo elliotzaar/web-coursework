@@ -73,5 +73,9 @@ class Accounts {
   public static function editAccount($id, $name, $number, $currency) {
     Database::query('UPDATE `accounts` SET `number` = :num, `name` = :name, `currency_id` = :curr WHERE `id` = :id', array('num' => $number, 'name' => $name, 'curr' => $currency, 'id' => $id));
   }
+
+  public static function getAccountBalance($acc_id) {
+    return floatval(Database::query('SELECT `balance` FROM `accounts` WHERE `id` = :id', array('id' => $acc_id))[0]);
+  }
 }
 ?>
