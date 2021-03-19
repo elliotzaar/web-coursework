@@ -21,12 +21,39 @@ if(isset($_GET['create'])) {
     die();
   }
 
+  if(isset($_GET['success'])) {
+    $page->setContent('Рахунок успішно створено.<div class="carditem-border-top"><button class="mdl-button mdl-js-button mdl-button--accent" onclick="location.href=\'accounts.php\'">Перейти до пошуку рахунків</button></div>');
+    $page->create();
+    die();
+  }
+
   if(isset($_POST['newaccname']) && isset($_POST['newaccnum']) && isset($_POST['newacccurr'])) {
     $accbalance = 0.00;
 
     if(isset($_POST['newaccbalance'])) {
-      $accbalance = floatval($_POST['newaccbalance']);
+      if(preg_match('/^\d{1,18}(,\d{3})*(\.\d\d)?$/', $_POST['newaccbalance'])) {
+        $accbalance = floatval($_POST['newaccbalance']);
+      } else {
+        header("Location: ./accounts.php?create&invalidb");
+        die();
+      }
     }
+
+    if(Accounts::accountNumberExists($_POST['newaccnum'])) {
+      header("Location: ./accounts.php?create&invalidn");
+      die();
+    }
+
+    if(!Currency::currencyExists($_POST['newacccurr'])) {
+      header("Location: ./accounts.php?create&invalidc");
+      die();
+    }
+
+    $nacc_id = Accounts::createAccount($_POST['newaccname'], $_POST['newaccnum'], $accbalance, $_POST['newacccurr']);
+    UsersLog::record($_COOKIE['sid'], UsersLog::CREATE_ACCOUNT, 'Створено рахунок id'.$nacc_id.' (num '.$_POST['newaccnum'].', name '.$_POST['newaccname'].', bal '.$accbalance.':'.$_POST['newacccurr'].')');
+
+    header("Location: ./accounts.php?create&success");
+    die();
   }
 
   $content .= '<h2 class="mdl-card__title-text">Новий рахунок</h2>';
@@ -38,19 +65,19 @@ if(isset($_GET['create'])) {
     <label class="mdl-textfield__label" for="new-accnt-name">Найменування</label>
   </div>
   <br />
-  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label'.(isset($_GET['invalidn']) ? ' is-invalid' : '').'">
     <input class="mdl-textfield__input" type="text" name="newaccnum" id="new-accnt-number" pattern="-?[A-Z0-9]*(\.[A-Z0-9]+)?">
     <label class="mdl-textfield__label" for="new-accnt-number">Номер</label>
   </div>
   <br />
 
-  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" id="new-accnt-balance-lbl">
+  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label'.(isset($_GET['invalidb']) ? ' is-invalid' : '').'" id="new-accnt-balance-lbl">
     <label class="mdl-textfield__label" for="new-accnt-balance">Початковий баланс</label>
     <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="new-accnt-balance-checkbox">
       <input type="checkbox" id="new-accnt-balance-checkbox" class="mdl-checkbox__input">
       <span class="mdl-checkbox__label">Є початковий баланс</span>
     </label>
-    <input class="mdl-textfield__input" type="text" name="newaccbalance" id="new-accnt-balance" hidden disabled value="0.00" pattern="^\d{1,3}(,\d{3})*(\.\d\d)?$">
+    <input class="mdl-textfield__input" type="text" name="newaccbalance" id="new-accnt-balance" hidden disabled value="0.00" pattern="^\d{1,18}(,\d{3})*(\.\d\d)?$">
   </div>
   <br />
   <select id="new-accnt-currency-selector" class="mdl-textfield__input" name="newacccurr">
@@ -111,11 +138,11 @@ if(isset($_GET['accname']) && isset($_GET['accnum']) && isset($_GET['acccurr']) 
   $accs_search_results = Accounts::findAccounts($_GET['accname'], $_GET['accnum'], $_GET['acccurr']);
 
   foreach($accs_search_results as $r) {
-    $content .= '<td class="mdl-data-table__cell--non-numeric">'.$r['name'].'</td>
+    $content .= '<tr><td class="mdl-data-table__cell--non-numeric">'.$r['name'].'</td>
     <td class="mdl-data-table__cell">'.$r['number'].'</td>
     <td class="mdl-data-table__cell">'.$r['balance'].'</td>
     <td class="mdl-data-table__cell--non-numeric">'.Currency::getCurrencyRow($r['currency_id'])['code'].'</td>
-    <td class="mdl-data-table__cell">'.$r['create_time'].'</td>';
+    <td class="mdl-data-table__cell">'.$r['create_time'].'</td></tr>';
   }
 
   $content .= '</tbody></table>';

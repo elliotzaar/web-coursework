@@ -116,7 +116,7 @@ if(isset($_GET['view'])) {
   } else {
     if(isset($_GET['confirmed'])) {
       UserAccount::setSuspended($s_uid, 1);
-      UsersLog::record($_COOKIE['sid'], UsersLog::SUSPEND_ACCOUNT, 'Заблоковано користувача ID '.$s_uid);
+      UsersLog::record($_COOKIE['sid'], UsersLog::SUSPEND_USER, 'Заблоковано користувача ID '.$s_uid);
       header("Location: ./users.php");
       die();
     } else {
@@ -134,7 +134,7 @@ if(isset($_GET['view'])) {
   } else {
     if(isset($_GET['confirmed'])) {
       UserAccount::setSuspended($s_uid, 0);
-      UsersLog::record($_COOKIE['sid'], UsersLog::UNSUSPEND_ACCOUNT, 'Поновлено доступ користувача ID '.$s_uid);
+      UsersLog::record($_COOKIE['sid'], UsersLog::UNSUSPEND_USER, 'Поновлено доступ користувача ID '.$s_uid);
       header("Location: ./users.php");
       die();
     } else {
