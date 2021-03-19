@@ -16,7 +16,7 @@ $page = new Page('Транзакції');
 $content = '';
 
 if(AccessRules::hasPermission('CREATE_TRANSACTIONS', $usr_perms)) {
-  $content .= '<div class="carditem-border-bottom" style="border-bottom: 0;"><button onclick="location.href=\'transactions.php?create\'" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent btn-align-right">Нова</button></div>';
+  $content .= '<div class="carditem-border-bottom" style="border-bottom: 0;"><button onclick="location.href=\'new-transaction.php\'" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent btn-align-right">Нова</button></div>';
 }
 $content .= '<h2'.(AccessRules::hasPermission('CREATE_TRANSACTIONS', $usr_perms) ? ' style="margin-top: 8px"' : '').' class="mdl-card__title-text">Пошук транзакцій</h2>';
 $content .= '<div class="mdl-card__supporting-text">';
@@ -73,7 +73,7 @@ $content .= '  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floatin
     <input class="mdl-textfield__input" type="date" placeholder="" name="date" id="transaction-search-date" value="'.(isset($_GET['date']) ? $_GET['date'] : '').'">
   </div>';
 
-$content .= '<br /><button id="accnt-search-btn" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" type="submit">Виконати пошук</button></form></div>';
+$content .= '<br /><button id="transaction-search-btn" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" type="submit">Виконати пошук</button></form></div>';
 
 $page->setContent($content);
 $page->create();

@@ -57,3 +57,52 @@ if(typeof(newaccount_balance_checkbox) != 'undefined' && newaccount_balance_chec
     }
   });
 }
+
+
+
+var transaction_new_account = document.getElementById("transaction-new-account");
+var transaction_new_targetacc = document.getElementById("transaction-new-targetacc");
+
+function processTransactionInfoInput() {
+  if((transaction_new_account.value.toUpperCase() == transaction_new_targetacc.value.toUpperCase()) || (document.getElementById('transaction-new-fromaccount-lbl').textContent.split(',')[1] != document.getElementById('transaction-new-toaccount-lbl').textContent.split(',')[1])) {
+    document.getElementById('transaction-new-fromaccount-div').classList.add('is-invalid');
+    document.getElementById('transaction-new-toaccount-div').classList.add('is-invalid');
+  } else {
+    document.getElementById('transaction-new-fromaccount-div').classList.remove('is-invalid');
+    document.getElementById('transaction-new-toaccount-div').classList.remove('is-invalid');
+  }
+}
+
+if(typeof(transaction_new_account) != 'undefined' && transaction_new_account != null) {
+  transaction_new_account.addEventListener('focusin', function() {
+    document.getElementById('transaction-new-fromaccount-lbl').textContent = "";
+  });
+  transaction_new_account.addEventListener('focusout', function() {
+    var client = new HttpClient();
+    client.get('webhook.php?account-number-exists&num=' + this.value, function(status, response) {
+        if(status != 200) {
+          document.getElementById('transaction-new-fromaccount-div').classList.add('is-invalid');
+        } else {
+          document.getElementById('transaction-new-fromaccount-lbl').textContent = response.split('//://');
+          processTransactionInfoInput();
+        }
+    });
+  });
+}
+
+if(typeof(transaction_new_targetacc) != 'undefined' && transaction_new_targetacc != null) {
+  transaction_new_targetacc.addEventListener('focusin', function() {
+    document.getElementById('transaction-new-toaccount-lbl').textContent = "";
+  });
+  transaction_new_targetacc.addEventListener('focusout', function() {
+    var client = new HttpClient();
+    client.get('webhook.php?account-number-exists&num=' + this.value, function(status, response) {
+        if(status != 200) {
+          document.getElementById('transaction-new-toaccount-div').classList.add('is-invalid');
+        } else {
+          document.getElementById('transaction-new-toaccount-lbl').textContent = response.split('//://');
+          processTransactionInfoInput();
+        }
+    });
+  });
+}

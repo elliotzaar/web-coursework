@@ -151,7 +151,7 @@ if(isset($_GET['edit'])) {
   <select id="edit-accnt-currency-selector" class="mdl-textfield__input" name="editacccurr">';
   $currency_list = Currency::getCurrenciesList();
   foreach($currency_list as $r) {
-    $content .= '<option value='.$r['id'].''.(intval($acc_row['id']) == intval($r['id']) ? ' selected' : '').'>'.$r['code'].' - '.$r['name'].'</option>';
+    $content .= '<option value='.$r['id'].''.(intval($acc_row['currency_id']) == intval($r['id']) ? ' selected' : '').'>'.$r['code'].' - '.$r['name'].'</option>';
   }
   $content .= '</select>';
   $content .= '<br /><button id="edit-accnt-btn" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" type="submit">Змінити</button>';

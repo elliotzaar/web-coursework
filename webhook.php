@@ -1,5 +1,6 @@
 <?php
 include_once('./classes/user.php');
+include_once('./classes/account.php');
 include_once('./classes/access-rules.php');
 include_once('./classes/log.php');
 
@@ -48,6 +49,24 @@ if(isset($_GET['change-role-perm-status'])) {
     } else {
       http_response_code(400);
       die('Incorrect role or user');
+    }
+  }
+} else if(isset($_GET['account-number-exists'])) {
+  if(!AccessRules::hasPermission('VIEW_ACCOUNTS', $usr_perms)) {
+    http_response_code(401);
+    die('Not enough permissions');
+  } else {
+    if(!isset($_GET['num'])) {
+      http_response_code(400);
+      die('Not enough parameters');
+    }
+
+    if(Accounts::accountNumberExists($_GET['num'])) {
+      http_response_code(200);
+      die(Accounts::getAccountRowByNum($_GET['num'])['name'].'//://'.Currency::getCurrencyRow(Accounts::getAccountRowByNum($_GET['num'])['currency_id'])['code']);
+    } else {
+      http_response_code(404);
+      die('false');
     }
   }
 } else {

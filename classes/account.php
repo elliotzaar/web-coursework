@@ -60,6 +60,16 @@ class Accounts {
     }
   }
 
+  public static function getAccountRowByNum($acc_num) {
+    $res = Database::query('SELECT * FROM `accounts` WHERE `number` = :num', array('num' => $acc_num));
+
+    if(count($res) > 0) {
+      return $res[0];
+    } else {
+      return array();
+    }
+  }
+
   public static function editAccount($id, $name, $number, $currency) {
     Database::query('UPDATE `accounts` SET `number` = :num, `name` = :name, `currency_id` = :curr WHERE `id` = :id', array('num' => $number, 'name' => $name, 'curr' => $currency, 'id' => $id));
   }
