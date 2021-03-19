@@ -82,12 +82,79 @@ if(isset($_GET['create'])) {
   <br />
   <select id="new-accnt-currency-selector" class="mdl-textfield__input" name="newacccurr">
   <option value="0">Валюта</option>';
-$currency_list = Currency::getCurrenciesList();
-foreach($currency_list as $r) {
-  $content .= '<option value='.$r['id'].''.((isset($_GET['acccurr']) && $r['id'] == $_GET['acccurr']) ? ' selected' : '').'>'.$r['code'].' - '.$r['name'].'</option>';
+  $currency_list = Currency::getCurrenciesList();
+  foreach($currency_list as $r) {
+    $content .= '<option value='.$r['id'].''.((isset($_GET['acccurr']) && $r['id'] == $_GET['acccurr']) ? ' selected' : '').'>'.$r['code'].' - '.$r['name'].'</option>';
+  }
+  $content .= '</select>';
+  $content .= '<br /><button id="new-accnt-btn" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" type="submit">Створити</button>';
+  $content .= '</form>';
+  $content .= '</div>';
+
+  $page->setContent($content);
+  $page->create();
+  die();
 }
-$content .= '</select>';
-$content .= '<br /><button id="new-accnt-btn" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" type="submit">Створити</button>';
+
+if(isset($_GET['edit'])) {
+  if(!AccessRules::hasPermission('CREATE_ACCOUNTS', $usr_perms)) {
+    NoPermissionPage::display('Рахунки');
+    die();
+  }
+
+  if(isset($_GET['success'])) {
+    $page->setContent('Рахунок успішно модифіковано.<div class="carditem-border-top"><button class="mdl-button mdl-js-button mdl-button--accent" onclick="location.href=\'accounts.php\'">Перейти до пошуку рахунків</button></div>');
+    $page->create();
+    die();
+  }
+
+  if(!Accounts::accountExists($_GET['edit'])) {
+    $page->setContent('Рахунок з таким унікальним ідентифікатором не знайдено.');
+    $page->create();
+    die();
+  }
+
+  $acc_row = Accounts::getAccountRow($_GET['edit']);
+
+  if(isset($_POST['editaccname']) && isset($_POST['editaccnum']) && isset($_POST['editacccurr'])) {
+    if(Accounts::accountNumberExistsExcluding($_POST['editaccnum'], $_GET['edit'])) {
+      header("Location: ./accounts.php?edit=".$_GET['edit']."&invalidn");
+      die();
+    }
+
+    if(!Currency::currencyExists($_POST['editacccurr'])) {
+      header("Location: ./accounts.php?edit=".$_GET['edit']."&invalidc");
+      die();
+    }
+
+    Accounts::editAccount($_GET['edit'], $_POST['editaccname'], $_POST['editaccnum'], $_POST['editacccurr']);
+    UsersLog::record($_COOKIE['sid'], UsersLog::EDIT_ACCOUNT, 'Модифіковано рахунок id'.$_GET['edit']);
+
+    header("Location: ./accounts.php?edit=".$_GET['edit']."&success");
+    die();
+  }
+
+  $content .= '<h2 class="mdl-card__title-text">Змінити дані рахунку</h2>';
+  $content .= '<div class="mdl-card__supporting-text">';
+
+  $content .= '<form action="accounts.php?edit='.$_GET['edit'].'" method="post">
+  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+    <input class="mdl-textfield__input" type="text" name="editaccname" id="edit-accnt-name" value="'.$acc_row['name'].'">
+    <label class="mdl-textfield__label" for="edit-accnt-name">Найменування</label>
+  </div>
+  <br />
+  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label'.(isset($_GET['invalidn']) ? ' is-invalid' : '').'">
+    <input class="mdl-textfield__input" type="text" name="editaccnum" id="edit-accnt-number" pattern="-?[A-Z0-9]*(\.[A-Z0-9]+)?" value="'.$acc_row['number'].'">
+    <label class="mdl-textfield__label" for="edit-accnt-number">Номер</label>
+  </div>
+  <br />
+  <select id="edit-accnt-currency-selector" class="mdl-textfield__input" name="editacccurr">';
+  $currency_list = Currency::getCurrenciesList();
+  foreach($currency_list as $r) {
+    $content .= '<option value='.$r['id'].''.(intval($acc_row['id']) == intval($r['id']) ? ' selected' : '').'>'.$r['code'].' - '.$r['name'].'</option>';
+  }
+  $content .= '</select>';
+  $content .= '<br /><button id="edit-accnt-btn" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" type="submit">Змінити</button>';
   $content .= '</form>';
   $content .= '</div>';
 
@@ -131,6 +198,7 @@ if(isset($_GET['accname']) && isset($_GET['accnum']) && isset($_GET['acccurr']) 
   <th class="mdl-data-table__cell">Баланс</th>
   <th class="mdl-data-table__cell--non-numeric">Валюта</th>
   <th class="mdl-data-table__cell">Час створення</th>
+  <th class="mdl-data-table__cell"></th>
   </tr>
   </thead>
   <tbody>';
@@ -142,7 +210,8 @@ if(isset($_GET['accname']) && isset($_GET['accnum']) && isset($_GET['acccurr']) 
     <td class="mdl-data-table__cell">'.$r['number'].'</td>
     <td class="mdl-data-table__cell">'.$r['balance'].'</td>
     <td class="mdl-data-table__cell--non-numeric">'.Currency::getCurrencyRow($r['currency_id'])['code'].'</td>
-    <td class="mdl-data-table__cell">'.$r['create_time'].'</td></tr>';
+    <td class="mdl-data-table__cell">'.$r['create_time'].'</td>
+    <td class="mdl-data-table__cell"><button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" onclick="location.href=\'accounts.php?edit='.$r['id'].'\'"><i class="material-icons">create</i></button></td></tr>';
   }
 
   $content .= '</tbody></table>';

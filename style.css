@@ -92,6 +92,6 @@
   margin-top: 8px;
 }
 
-#new-accnt-currency-selector {
+#new-accnt-currency-selector, #edit-accnt-currency-selector {
   width: 300px;
 }

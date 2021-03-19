@@ -31,13 +31,37 @@ class Accounts {
     }
   }
 
+  public static function accountExists($acc_id) {
+    $res = Database::query('SELECT COUNT(*) FROM `accounts` WHERE `id` = :acc_id', array('acc_id' => $acc_id));
+    return $res[0][0] == '1';
+  }
+
   public static function accountNumberExists($num) {
     $res = Database::query('SELECT COUNT(*) FROM `accounts` WHERE UPPER( `number` ) = :num', array('num' => strtoupper($num)));
     return $res[0][0] == '1';
   }
 
+  public static function accountNumberExistsExcluding($num, $exclude_id) {
+    $res = Database::query('SELECT COUNT(*) FROM `accounts` WHERE UPPER( `number` ) = :num AND `id` <> :eid', array('num' => strtoupper($num), 'eid' => $exclude_id));
+    return $res[0][0] == '1';
+  }
+
   public static function createAccount($name, $number, $currency, $balance) {
     return Database::insertQuery('INSERT INTO `accounts` (`number`, `name`, `balance`, `currency_id`) VALUES (:num, :name, :curr, :bal)', array('num' => $number, 'name' => $name, 'curr' => $currency, 'bal' => $balance));
+  }
+
+  public static function getAccountRow($acc_id) {
+    $res = Database::query('SELECT * FROM `accounts` WHERE `id` = :id', array('id' => $acc_id));
+
+    if(count($res) > 0) {
+      return $res[0];
+    } else {
+      return array();
+    }
+  }
+
+  public static function editAccount($id, $name, $number, $currency) {
+    Database::query('UPDATE `accounts` SET `number` = :num, `name` = :name, `currency_id` = :curr WHERE `id` = :id', array('num' => $number, 'name' => $name, 'curr' => $currency, 'id' => $id));
   }
 }
 ?>
