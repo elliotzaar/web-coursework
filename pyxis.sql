@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Мар 17 2021 г., 15:27
+-- Время создания: Мар 19 2021 г., 15:20
 -- Версия сервера: 10.4.16-MariaDB
 -- Версия PHP: 7.4.12
 
@@ -33,7 +33,6 @@ CREATE TABLE `accounts` (
   `name` varchar(128) NOT NULL,
   `balance` decimal(18,2) NOT NULL,
   `currency_id` int(11) NOT NULL,
-  `creator_session_id` int(11) NOT NULL,
   `create_time` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -41,8 +40,10 @@ CREATE TABLE `accounts` (
 -- Дамп данных таблицы `accounts`
 --
 
-INSERT INTO `accounts` (`id`, `number`, `name`, `balance`, `currency_id`, `creator_session_id`, `create_time`) VALUES
-(1, 'UA3829483988439994', 'Заар Елліот Юрійович', '2435.43', 2, 1, '2021-03-17 16:13:44');
+INSERT INTO `accounts` (`id`, `number`, `name`, `balance`, `currency_id`, `create_time`) VALUES
+(1, 'UA212', 'Заар Елліот Юрійович', '2435.00', 2, '2021-03-17 16:13:44'),
+(3, 'UA211', 'Заар Елліот Юрійович', '1.10', 3, '2021-03-19 08:46:57'),
+(4, 'UA210', 'Заар Елліот Юрійович', '0.00', 2, '2021-03-19 08:49:21');
 
 -- --------------------------------------------------------
 
@@ -88,7 +89,10 @@ INSERT INTO `permissions` (`id`, `name`, `description`) VALUES
 (3, 'SUSPEND_USERS', 'Дозволяє блокувати та розблоковувати користувачів'),
 (4, 'MODIFY_ROLES', 'Дозволяє змінювати ролі, дозволи ролей, а також присвоювати ролі користувачам'),
 (5, 'CREATE_USERS', 'Дозволяє додати нового користувача'),
-(6, 'VIEW_ACCOUNTS', 'Дозволяє переглядати та шукати рахунки');
+(6, 'VIEW_ACCOUNTS', 'Дозволяє переглядати та шукати рахунки'),
+(7, 'CREATE_ACCOUNTS', 'Дозволяє створювати нові рахунки та редагувати вже створені'),
+(8, 'VIEW_TRANSACTIONS', 'Дозволяє переглядати транзакції'),
+(9, 'CREATE_TRANSACTIONS', 'Дозволяє створювати та проводити транзакції ');
 
 -- --------------------------------------------------------
 
@@ -132,7 +136,89 @@ INSERT INTO `roles_permissions` (`roles_id`, `permissions_id`) VALUES
 (1, 4),
 (1, 3),
 (4, 6),
-(1, 6);
+(1, 6),
+(1, 7),
+(4, 7),
+(1, 8),
+(1, 9),
+(4, 8),
+(4, 9);
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `transactions`
+--
+
+CREATE TABLE `transactions` (
+  `id` int(11) NOT NULL,
+  `uuid` varchar(36) NOT NULL,
+  `account_id` int(11) NOT NULL,
+  `target_account_id` int(11) NOT NULL,
+  `amount` decimal(18,2) NOT NULL,
+  `transaction_type_id` int(11) NOT NULL,
+  `description` text NOT NULL,
+  `creator_session_id` int(11) NOT NULL,
+  `create_time` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Дамп данных таблицы `transactions`
+--
+
+INSERT INTO `transactions` (`id`, `uuid`, `account_id`, `target_account_id`, `amount`, `transaction_type_id`, `description`, `creator_session_id`, `create_time`) VALUES
+(1, '4ebcdf39-a0af-4eed-9d37-4b215edf', 1, 4, '866.00', 2, 'AAA', 45, '2021-03-19 16:10:52'),
+(2, 'fb4d4b34-91c9-4fc6-a08c-0ed427c3ca49', 1, 4, '866.00', 1, 'AAA', 45, '2021-03-19 16:12:02'),
+(3, '94e8a460-39d7-495c-9e0f-b276f08e8599', 1, 4, '866.00', 2, 'AAA', 45, '2021-03-19 16:13:16'),
+(4, '454f2a06-6714-49e2-b900-66ea2d96a173', 1, 4, '866.00', 2, 'AAA', 45, '2021-03-19 16:13:18'),
+(5, 'd449b39e-b1ff-493a-8aa8-59adff816093', 1, 4, '866.00', 2, 'AAA', 45, '2021-03-19 16:13:18'),
+(6, '73548a9f-fe26-43d5-a809-62335991879e', 1, 4, '866.00', 2, 'AAA', 45, '2021-03-19 16:14:29');
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `transaction_status`
+--
+
+CREATE TABLE `transaction_status` (
+  `transaction_uuid` varchar(36) NOT NULL,
+  `status` enum('HOLD','AUTHORIZED','CANCELLED','DELETED') NOT NULL DEFAULT 'HOLD',
+  `controller_session_id` int(11) DEFAULT NULL,
+  `controller_time` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Дамп данных таблицы `transaction_status`
+--
+
+INSERT INTO `transaction_status` (`transaction_uuid`, `status`, `controller_session_id`, `controller_time`) VALUES
+('4', 'HOLD', NULL, NULL),
+('454f2a06-6714-49e2-b900-66ea2d96a173', 'HOLD', NULL, NULL),
+('73548a9f-fe26-43d5-a809-62335991879e', 'HOLD', NULL, NULL),
+('94e8a460-39d7-495c-9e0f-b276f08e8599', 'HOLD', NULL, NULL),
+('d449b39e-b1ff-493a-8aa8-59adff816093', 'HOLD', NULL, NULL),
+('fb4d4b34-91c9-4fc6-a08c-0ed427c3ca49', 'HOLD', NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `transaction_types`
+--
+
+CREATE TABLE `transaction_types` (
+  `id` int(11) NOT NULL,
+  `name` varchar(45) NOT NULL,
+  `description` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Дамп данных таблицы `transaction_types`
+--
+
+INSERT INTO `transaction_types` (`id`, `name`, `description`) VALUES
+(1, 'WITHDRAWAL', 'Зняття з рахунку'),
+(2, 'REFILL', 'Поповнення рахунку'),
+(3, 'ACCOUNT_TRANSFER', 'Переведення коштів');
 
 -- --------------------------------------------------------
 
@@ -154,7 +240,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`uid`, `username`, `password`, `role_id`, `suspended`) VALUES
 (1, 'zaar', 'a756e25891ef18437e01b6a81969a01b21f6bf095cbe2b85e30f9aa4a8d33729fd8eaecfca5c6d2c1166c1e2ba0d524ce01e57a065f0a8c65222a6d69123570b', 1, 0),
-(2, 'admin', 'a756e25891ef18437e01b6a81969a01b21f6bf095cbe2b85e30f9aa4a8d33729fd8eaecfca5c6d2c1166c1e2ba0d524ce01e57a065f0a8c65222a6d69123570b', 4, 1),
+(2, 'admin', 'a756e25891ef18437e01b6a81969a01b21f6bf095cbe2b85e30f9aa4a8d33729fd8eaecfca5c6d2c1166c1e2ba0d524ce01e57a065f0a8c65222a6d69123570b', 1, 0),
 (3, 'test', '3e8ddffee0774d21fac027dc9d5b2c1e5f6ba64bf6b853d82067de3c2d117ca11110f6b22d097b7045d3a9d31ae0cdfd1f9f5bce107e5b3e7eb90fed70e6e203', 1, 1);
 
 -- --------------------------------------------------------
@@ -165,7 +251,7 @@ INSERT INTO `users` (`uid`, `username`, `password`, `role_id`, `suspended`) VALU
 
 CREATE TABLE `users_log` (
   `id` bigint(11) UNSIGNED NOT NULL,
-  `action` enum('STOP_SESSION','SUSPEND_ACCOUNT','UNSUSPEND_ACCOUNT','CREATE_USER','GRANT_ROLE_PERMISSION','REMOVE_ROLE_PERMISSION','CREATE_ROLE','ASSIGN_ROLE') NOT NULL,
+  `action` enum('STOP_SESSION','SUSPEND_USER','UNSUSPEND_USER','CREATE_USER','GRANT_ROLE_PERMISSION','REMOVE_ROLE_PERMISSION','CREATE_ROLE','ASSIGN_ROLE','CREATE_ACCOUNT','EDIT_ACCOUNT') NOT NULL,
   `action_description` text DEFAULT NULL,
   `operator_session_id` int(11) NOT NULL,
   `time` datetime NOT NULL DEFAULT current_timestamp()
@@ -178,19 +264,19 @@ CREATE TABLE `users_log` (
 INSERT INTO `users_log` (`id`, `action`, `action_description`, `operator_session_id`, `time`) VALUES
 (1, 'STOP_SESSION', 'Зупинено сесію ID 14', 15, '2021-02-18 16:15:09'),
 (2, 'STOP_SESSION', 'Зупинено сесію ID 18', 19, '2021-02-22 13:46:07'),
-(3, 'SUSPEND_ACCOUNT', 'Заблоковано користувача ID 1', 19, '2021-02-22 14:36:42'),
-(4, 'SUSPEND_ACCOUNT', 'Заблоковано користувача ID 1', 20, '2021-02-22 14:39:23'),
-(5, 'UNSUSPEND_ACCOUNT', 'Розблоковано користувача ID 2', 21, '2021-02-22 14:42:53'),
-(6, 'SUSPEND_ACCOUNT', 'Заблоковано користувача ID 2', 21, '2021-02-22 14:43:01'),
-(7, 'UNSUSPEND_ACCOUNT', 'Розблоковано користувача ID 2', 21, '2021-02-22 14:43:03'),
-(8, 'SUSPEND_ACCOUNT', 'Заблоковано користувача ID 2', 21, '2021-02-22 14:43:10'),
-(9, 'UNSUSPEND_ACCOUNT', 'Розблоковано користувача ID 2', 21, '2021-02-22 14:43:15'),
-(10, 'SUSPEND_ACCOUNT', 'Заблоковано користувача ID 2', 21, '2021-02-22 14:44:02'),
-(11, 'UNSUSPEND_ACCOUNT', 'Розблоковано користувача ID 2', 21, '2021-02-22 14:44:04'),
-(12, 'SUSPEND_ACCOUNT', 'Заблоковано користувача ID 2', 21, '2021-02-22 14:44:29'),
-(13, 'UNSUSPEND_ACCOUNT', 'Поновлено доступ користувача ID 2', 21, '2021-02-22 14:44:31'),
+(3, '', 'Заблоковано користувача ID 1', 19, '2021-02-22 14:36:42'),
+(4, '', 'Заблоковано користувача ID 1', 20, '2021-02-22 14:39:23'),
+(5, '', 'Розблоковано користувача ID 2', 21, '2021-02-22 14:42:53'),
+(6, '', 'Заблоковано користувача ID 2', 21, '2021-02-22 14:43:01'),
+(7, '', 'Розблоковано користувача ID 2', 21, '2021-02-22 14:43:03'),
+(8, '', 'Заблоковано користувача ID 2', 21, '2021-02-22 14:43:10'),
+(9, '', 'Розблоковано користувача ID 2', 21, '2021-02-22 14:43:15'),
+(10, '', 'Заблоковано користувача ID 2', 21, '2021-02-22 14:44:02'),
+(11, '', 'Розблоковано користувача ID 2', 21, '2021-02-22 14:44:04'),
+(12, '', 'Заблоковано користувача ID 2', 21, '2021-02-22 14:44:29'),
+(13, '', 'Поновлено доступ користувача ID 2', 21, '2021-02-22 14:44:31'),
 (14, 'CREATE_USER', 'Створено користувача 3 з ім\'ям test', 24, '2021-03-15 13:43:34'),
-(15, 'SUSPEND_ACCOUNT', 'Заблоковано користувача ID 3', 24, '2021-03-15 14:26:23'),
+(15, '', 'Заблоковано користувача ID 3', 24, '2021-03-15 14:26:23'),
 (16, 'REMOVE_ROLE_PERMISSION', '1', 27, '2021-03-16 10:59:07'),
 (17, 'GRANT_ROLE_PERMISSION', '1', 27, '2021-03-16 10:59:09'),
 (18, 'REMOVE_ROLE_PERMISSION', '1', 27, '2021-03-16 10:59:10'),
@@ -251,8 +337,8 @@ INSERT INTO `users_log` (`id`, `action`, `action_description`, `operator_session
 (73, 'REMOVE_ROLE_PERMISSION', 'Видалено дозвіл MODIFY_ROLES (id4) з ролі accountant id4)', 34, '2021-03-17 13:34:23'),
 (74, 'GRANT_ROLE_PERMISSION', 'Додано дозвіл MODIFY_ROLES (id4) до ролі accountant (id4)', 34, '2021-03-17 13:34:24'),
 (75, 'REMOVE_ROLE_PERMISSION', 'Видалено дозвіл MODIFY_ROLES (id4) з ролі accountant id4)', 34, '2021-03-17 13:34:33'),
-(76, 'SUSPEND_ACCOUNT', 'Заблоковано користувача ID 2', 34, '2021-03-17 13:38:52'),
-(77, 'UNSUSPEND_ACCOUNT', 'Поновлено доступ користувача ID 2', 34, '2021-03-17 13:38:57'),
+(76, '', 'Заблоковано користувача ID 2', 34, '2021-03-17 13:38:52'),
+(77, '', 'Поновлено доступ користувача ID 2', 34, '2021-03-17 13:38:57'),
 (78, 'REMOVE_ROLE_PERMISSION', 'Видалено дозвіл SUSPEND_USERS (id3) з ролі admin id1)', 34, '2021-03-17 13:39:02'),
 (79, 'GRANT_ROLE_PERMISSION', 'Додано дозвіл SUSPEND_USERS (id3) до ролі admin (id1)', 34, '2021-03-17 13:39:09'),
 (80, 'REMOVE_ROLE_PERMISSION', 'Видалено дозвіл SUSPEND_USERS (id3) з ролі admin id1)', 34, '2021-03-17 13:39:09'),
@@ -262,7 +348,39 @@ INSERT INTO `users_log` (`id`, `action`, `action_description`, `operator_session
 (84, 'GRANT_ROLE_PERMISSION', 'Додано дозвіл VIEW_ACCOUNTS (id6) до ролі accountant (id4)', 34, '2021-03-17 13:44:56'),
 (85, 'REMOVE_ROLE_PERMISSION', 'Видалено дозвіл VIEW_ACCOUNTS (id6) з ролі admin id1)', 34, '2021-03-17 13:49:04'),
 (86, 'GRANT_ROLE_PERMISSION', 'Додано дозвіл VIEW_ACCOUNTS (id6) до ролі admin (id1)', 34, '2021-03-17 13:49:09'),
-(87, 'SUSPEND_ACCOUNT', 'Заблоковано користувача ID 2', 34, '2021-03-17 13:58:08');
+(87, '', 'Заблоковано користувача ID 2', 34, '2021-03-17 13:58:08'),
+(88, 'GRANT_ROLE_PERMISSION', 'Додано дозвіл CREATE_ACCOUNTS (id7) до ролі admin (id1)', 36, '2021-03-18 11:39:32'),
+(89, 'REMOVE_ROLE_PERMISSION', 'Видалено дозвіл CREATE_ACCOUNTS (id7) з ролі admin id1)', 37, '2021-03-18 12:34:03'),
+(90, 'GRANT_ROLE_PERMISSION', 'Додано дозвіл CREATE_ACCOUNTS (id7) до ролі admin (id1)', 37, '2021-03-18 12:34:13'),
+(91, 'REMOVE_ROLE_PERMISSION', 'Видалено дозвіл CREATE_ACCOUNTS (id7) з ролі admin id1)', 37, '2021-03-18 13:09:54'),
+(92, 'GRANT_ROLE_PERMISSION', 'Додано дозвіл CREATE_ACCOUNTS (id7) до ролі admin (id1)', 37, '2021-03-18 13:10:07'),
+(93, 'CREATE_ACCOUNT', 'Створено рахунок id2 (num UA43342233223, name Заар Елліот Юрійович, bal 1.32:4)', 39, '2021-03-19 08:46:10'),
+(94, 'CREATE_ACCOUNT', 'Створено рахунок id3 (num UA211, name Заар Елліот Юрійович, bal 1.1:4)', 39, '2021-03-19 08:46:57'),
+(95, 'CREATE_ACCOUNT', 'Створено рахунок id4 (num AAA, name Заар Елліот Юрійович, bal 0:3)', 39, '2021-03-19 08:49:21'),
+(96, 'UNSUSPEND_USER', 'Поновлено доступ користувача ID 2', 39, '2021-03-19 09:11:42'),
+(97, 'SUSPEND_USER', 'Заблоковано користувача ID 1', 39, '2021-03-19 09:11:45'),
+(98, 'UNSUSPEND_USER', 'Поновлено доступ користувача ID 1', 40, '2021-03-19 09:12:58'),
+(99, 'GRANT_ROLE_PERMISSION', 'Додано дозвіл CREATE_ACCOUNTS (id7) до ролі accountant (id4)', 41, '2021-03-19 09:13:20'),
+(100, 'GRANT_ROLE_PERMISSION', 'Додано дозвіл VIEW_TRANSACTIONS (id8) до ролі admin (id1)', 41, '2021-03-19 09:15:09'),
+(101, 'REMOVE_ROLE_PERMISSION', 'Видалено дозвіл VIEW_TRANSACTIONS (id8) з ролі admin id1)', 41, '2021-03-19 09:15:15'),
+(102, 'GRANT_ROLE_PERMISSION', 'Додано дозвіл VIEW_TRANSACTIONS (id8) до ролі admin (id1)', 41, '2021-03-19 09:16:03'),
+(103, 'EDIT_ACCOUNT', 'Модифіковано рахунок id1', 41, '2021-03-19 10:28:57'),
+(104, 'GRANT_ROLE_PERMISSION', 'Додано дозвіл CREATE_TRANSACTIONS (id9) до ролі admin (id1)', 42, '2021-03-19 12:19:41'),
+(105, 'REMOVE_ROLE_PERMISSION', 'Видалено дозвіл CREATE_TRANSACTIONS (id9) з ролі admin id1)', 42, '2021-03-19 13:46:43'),
+(106, 'GRANT_ROLE_PERMISSION', 'Додано дозвіл CREATE_TRANSACTIONS (id9) до ролі admin (id1)', 42, '2021-03-19 13:46:57'),
+(107, 'EDIT_ACCOUNT', 'Модифіковано рахунок id1', 42, '2021-03-19 14:40:53'),
+(108, 'EDIT_ACCOUNT', 'Модифіковано рахунок id4', 42, '2021-03-19 14:42:02'),
+(109, 'GRANT_ROLE_PERMISSION', 'Додано дозвіл VIEW_TRANSACTIONS (id8) до ролі accountant (id4)', 42, '2021-03-19 14:50:32'),
+(110, 'GRANT_ROLE_PERMISSION', 'Додано дозвіл CREATE_TRANSACTIONS (id9) до ролі accountant (id4)', 42, '2021-03-19 14:50:32'),
+(111, 'EDIT_ACCOUNT', 'Модифіковано рахунок id3', 42, '2021-03-19 14:51:23'),
+(112, 'SUSPEND_USER', 'Заблоковано користувача ID 2', 43, '2021-03-19 14:52:23'),
+(113, 'UNSUSPEND_USER', 'Поновлено доступ користувача ID 2', 43, '2021-03-19 14:52:32'),
+(114, 'STOP_SESSION', 'Зупинено сесію ID 38', 43, '2021-03-19 14:53:16'),
+(115, 'STOP_SESSION', 'Зупинено сесію ID 39', 43, '2021-03-19 14:53:16'),
+(116, 'STOP_SESSION', 'Зупинено сесію ID 41', 43, '2021-03-19 14:53:17'),
+(117, 'STOP_SESSION', 'Зупинено сесію ID 43', 44, '2021-03-19 14:54:03'),
+(118, 'SUSPEND_USER', 'Заблоковано користувача ID 1', 44, '2021-03-19 14:54:34'),
+(119, 'UNSUSPEND_USER', 'Поновлено доступ користувача ID 1', 46, '2021-03-19 14:54:46');
 
 -- --------------------------------------------------------
 
@@ -318,7 +436,19 @@ INSERT INTO `users_sessions` (`id`, `users_id`, `token`, `stopped`, `address`, `
 (32, 1, '6e3581ed4880c722052d1d5037ca26c17177c37f3f9dcd86d2e1fcb58e46f319fb08532788ff4ae153b755cdfbdc7499a2e60450dd64d75007208cda0109706c', 0, '::1', '2021-03-17 09:01:04'),
 (33, 1, '78bbe0497bf0add31505ed3bc7de27b3c188b2eb354731aa2559b2a0d7fe0a7f2fae6eb84394fbdd1c5244607ab25d1b38850a3429ca55ef483f7f044926fafa', 0, '::1', '2021-03-17 12:03:15'),
 (34, 1, '6aec145998258165db7dd805f5d9d5aab1b7a18205688019e0f65a9059f8784f895c785ed2a4348a830320bf36a8026487cdd407cbbefba214f46d5674bfc812', 0, '::1', '2021-03-17 12:35:05'),
-(35, 1, '773bd397f02f548b7b7b99bdbd76ccde2c70b4fd6dd4f68d4887a645a2116966ce2d2ff888221fb32e71e5ce3c01572907dd33e2fde7c55186efb38796cd931e', 0, '::1', '2021-03-17 15:27:07');
+(35, 1, '773bd397f02f548b7b7b99bdbd76ccde2c70b4fd6dd4f68d4887a645a2116966ce2d2ff888221fb32e71e5ce3c01572907dd33e2fde7c55186efb38796cd931e', 0, '::1', '2021-03-17 15:27:07'),
+(36, 1, '093e2f3296f1b88dff3335619d9e9b19318516d453f1474a5d7a4fd811c37720627d4e6f3d82820c98edc419273103e299fd7a1e13899d4b80aa3161e4376faf', 0, '::1', '2021-03-18 11:27:09'),
+(37, 1, '92de7b4c29e8642dfd0c42d8444505cd65e2ef903c5444e0853b8c090b1d3ed00781a5d1147f28e2e9b088ff352696cc7fde47ce7b3680789cf62ea29c5b7e2f', 0, '::1', '2021-03-18 12:31:04'),
+(38, 1, '1b3743c7c1c9e56173491e260875041393098757e9d1105bc3f3544b576cb8764f9a98c1f688b14390a22b5be1bd2db1f503fbcf7bc27b7c909cb1560af17596', 1, '::1', '2021-03-18 15:38:36'),
+(39, 1, '6fbce9bfa053f0f7ad211eeb3cb0db318b0322c8ce65bf07741a9dc5760f4b587ceaceacb910cc5655892fd88c0e610b825b25087ba64c1c7d2e7abf5ec0507f', 1, '::1', '2021-03-19 08:05:30'),
+(40, 2, '3a30d1bc59972bfd4f412502a6bfae4fc9b830cf9c4b696a14f65498abf1fcf690ffc4a79b09f496921bad4f9afe4508e782dd215fa6f970c0ba9d89e520f5d9', 1, '::1', '2021-03-19 09:12:32'),
+(41, 1, 'd6227c3e7107a29b2c859b15fcf52a29c9b7e9dfc3f32726d4a3979130a2a2a73b1e58131e600a9da35eb65939265c3f1af01505e320c7584b05bf3faab5918d', 1, '::1', '2021-03-19 09:13:04'),
+(42, 1, '3de9945431607e374c8c31626a8e917c38614a6f0b837a9db8fdca0e306302874dcd6de4c6ce87ea99a7eba24dee14a02712b76fe22a6710f8237930fdb7b65f', 1, '::1', '2021-03-19 12:16:39'),
+(43, 1, '92f582d5a9f20c860d07a0267f4fdcc01d212ddf647010190644a72f0b2922a9a29d9ad1d6eeed7d7f954659267ab0d594d0c90c265c9cebcd0cc9b0ab28967f', 1, '::1', '2021-03-19 14:52:04'),
+(44, 1, '8fbd2eebe11ca610b5d59d9232743eb000ec5e89895c19a423f12336b13799f310ceed9f3fd3c2df37eb3d1b1d03c30fde03a96e7404152ef034cb515328bc21', 0, '::1', '2021-03-19 14:53:39'),
+(45, 1, 'fedbd4daf74752951d4d9248d2d62fed086f51b1bab3eb26e3adfbbfff271fc8cec0a45af4d68ad1f9dbe09e4f5d9f1599a7b83c3f37ffac2618a50777e498c2', 0, '::1', '2021-03-19 14:54:12'),
+(46, 2, '92969f09ac528d9af881bfcb48e2895380c173b0d89126d714161f0aa2a07a9fb826d7adf428204bbeceb064da33ed5aa41da8cea9ae103841744e94f4e8359d', 1, '::1', '2021-03-19 14:54:43'),
+(47, 1, 'be814b74814023c435475da4208e8ba622ae37b0bb0e68abe8110d2f4c4969d76dc034b4190db28c5ba8fc3758010553a7945f60cb5f8c01f72c00d5fcc71597', 0, '::1', '2021-03-19 14:54:55');
 
 --
 -- Индексы сохранённых таблиц
@@ -353,6 +483,25 @@ ALTER TABLE `roles`
   ADD UNIQUE KEY `name` (`name`);
 
 --
+-- Индексы таблицы `transactions`
+--
+ALTER TABLE `transactions`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uuid` (`uuid`);
+
+--
+-- Индексы таблицы `transaction_status`
+--
+ALTER TABLE `transaction_status`
+  ADD UNIQUE KEY `transaction_uuid` (`transaction_uuid`);
+
+--
+-- Индексы таблицы `transaction_types`
+--
+ALTER TABLE `transaction_types`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Индексы таблицы `users`
 --
 ALTER TABLE `users`
@@ -380,7 +529,7 @@ ALTER TABLE `users_sessions`
 -- AUTO_INCREMENT для таблицы `accounts`
 --
 ALTER TABLE `accounts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT для таблицы `currencies`
@@ -392,13 +541,25 @@ ALTER TABLE `currencies`
 -- AUTO_INCREMENT для таблицы `permissions`
 --
 ALTER TABLE `permissions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT для таблицы `roles`
 --
 ALTER TABLE `roles`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT для таблицы `transactions`
+--
+ALTER TABLE `transactions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT для таблицы `transaction_types`
+--
+ALTER TABLE `transaction_types`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT для таблицы `users`
@@ -410,13 +571,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT для таблицы `users_log`
 --
 ALTER TABLE `users_log`
-  MODIFY `id` bigint(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=88;
+  MODIFY `id` bigint(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=120;
 
 --
 -- AUTO_INCREMENT для таблицы `users_sessions`
 --
 ALTER TABLE `users_sessions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

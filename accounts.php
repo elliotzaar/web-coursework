@@ -195,8 +195,9 @@ if(isset($_GET['accname']) && isset($_GET['accnum']) && isset($_GET['acccurr']) 
   <tr>
   <th class="mdl-data-table__cell--non-numeric">Найменування</th>
   <th class="mdl-data-table__cell">Номер</th>
-  <th class="mdl-data-table__cell">Баланс</th>
+  <th class="mdl-data-table__cell">Доступний баланс</th>
   <th class="mdl-data-table__cell--non-numeric">Валюта</th>
+  <th class="mdl-data-table__cell">Заблоковано</th>
   <th class="mdl-data-table__cell">Час створення</th>
   <th class="mdl-data-table__cell">Дії</th>
   </tr>
@@ -208,8 +209,9 @@ if(isset($_GET['accname']) && isset($_GET['accnum']) && isset($_GET['acccurr']) 
   foreach($accs_search_results as $r) {
     $content .= '<tr><td class="mdl-data-table__cell--non-numeric">'.$r['name'].'</td>
     <td class="mdl-data-table__cell">'.$r['number'].'</td>
-    <td class="mdl-data-table__cell">'.$r['balance'].'</td>
+    <td class="mdl-data-table__cell">'.Accounts::getAvailableAccountBalance($r['id']).'</td>
     <td class="mdl-data-table__cell--non-numeric">'.Currency::getCurrencyRow($r['currency_id'])['code'].'</td>
+    <td class="mdl-data-table__cell">'.Accounts::getAccountBlockedBalance($r['id']).'</td>
     <td class="mdl-data-table__cell">'.$r['create_time'].'</td>
     <td class="mdl-data-table__cell"><button class="mdl-button mdl-js-button mdl-button--icon mdl-button--accent" onclick="location.href=\'accounts.php?edit='.$r['id'].'\'"><i class="material-icons">create</i></button>
     <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" onclick="location.href=\'transactions.php?account='.$r['number'].'\'"><i class="material-icons">payments</i></button></td></tr>';

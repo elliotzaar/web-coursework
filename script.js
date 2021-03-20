@@ -58,18 +58,26 @@ if(typeof(newaccount_balance_checkbox) != 'undefined' && newaccount_balance_chec
   });
 }
 
-
-
 var transaction_new_account = document.getElementById("transaction-new-account");
 var transaction_new_targetacc = document.getElementById("transaction-new-targetacc");
 
-function processTransactionInfoInput() {
-  if((transaction_new_account.value.toUpperCase() == transaction_new_targetacc.value.toUpperCase()) || (document.getElementById('transaction-new-fromaccount-lbl').textContent.split(',')[1] != document.getElementById('transaction-new-toaccount-lbl').textContent.split(',')[1])) {
-    document.getElementById('transaction-new-fromaccount-div').classList.add('is-invalid');
-    document.getElementById('transaction-new-toaccount-div').classList.add('is-invalid');
+function checkNewTransactionsInput() {
+  if(transaction_new_account.value != '' && transaction_new_targetacc.value != '' && !document.getElementById('transaction-new-fromaccount-div').classList.contains("is-invalid") && !document.getElementById('transaction-new-toaccount-div').classList.contains("is-invalid") && document.getElementById("transaction-search-type-selector").value != '0' && document.getElementById("transaction-new-amount").value != '' && parseFloat(document.getElementById("transaction-new-amount").value) > 0.0) {
+    document.getElementById('transaction-new-btn').disabled = false;
   } else {
-    document.getElementById('transaction-new-fromaccount-div').classList.remove('is-invalid');
-    document.getElementById('transaction-new-toaccount-div').classList.remove('is-invalid');
+    document.getElementById('transaction-new-btn').disabled = true;
+  }
+}
+
+function processTransactionInfoInput() {
+  if(transaction_new_account.value != '' && transaction_new_targetacc != '') {
+    if((transaction_new_account.value.toUpperCase() == transaction_new_targetacc.value.toUpperCase()) || (document.getElementById('transaction-new-fromaccount-lbl').textContent.split(',')[1] != document.getElementById('transaction-new-toaccount-lbl').textContent.split(',')[1])) {
+      document.getElementById('transaction-new-fromaccount-div').classList.add('is-invalid');
+      document.getElementById('transaction-new-toaccount-div').classList.add('is-invalid');
+    } else {
+      document.getElementById('transaction-new-fromaccount-div').classList.remove('is-invalid');
+      document.getElementById('transaction-new-toaccount-div').classList.remove('is-invalid');
+    }
   }
 }
 

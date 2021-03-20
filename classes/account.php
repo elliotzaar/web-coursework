@@ -74,8 +74,16 @@ class Accounts {
     Database::query('UPDATE `accounts` SET `number` = :num, `name` = :name, `currency_id` = :curr WHERE `id` = :id', array('num' => $number, 'name' => $name, 'curr' => $currency, 'id' => $id));
   }
 
+  public static function getAccountBlockedBalance($acc_id) {
+    return floatval(Database::query('SELECT SUM(`amount`) FROM `transactions` WHERE `account_id` = :id AND (`transaction_type_id` = 1 OR `transaction_type_id` = 3) AND `status` = "HOLD"', array('id' => $acc_id))[0][0]);
+  }
+
   public static function getAccountBalance($acc_id) {
-    return floatval(Database::query('SELECT `balance` FROM `accounts` WHERE `id` = :id', array('id' => $acc_id))[0]);
+    return floatval(Database::query('SELECT `balance` FROM `accounts` WHERE `id` = :id', array('id' => $acc_id))[0][0]);
+  }
+
+  public static function getAvailableAccountBalance($acc_id) {
+    return Accounts::getAccountBalance($acc_id) - Accounts::getAccountBlockedBalance($acc_id);
   }
 }
 ?>

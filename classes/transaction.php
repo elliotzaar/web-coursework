@@ -27,7 +27,6 @@ class Transactions {
     $target_account_id = Accounts::getAccountRowByNum($account_target_number)['id'];
     $uuid = Transactions::generateUUID();
 
-    Database::insertQuery('INSERT INTO `transaction_status` (`transaction_uuid`) VALUES (:uuid)', array('uuid' => $uuid));
     return Database::insertQuery('INSERT INTO `transactions` (`uuid`, `account_id`, `target_account_id`, `amount`, `transaction_type_id`, `description`, `creator_session_id`) VALUES (:uuid, :accid, :taccid, :amount, :ttid, :descr, :csid)', array('uuid' => $uuid, 'accid' => $account_id, 'taccid' => $target_account_id, 'amount' => $amount, 'ttid' => $transaction_type_id, 'descr' => $description, 'csid' => $creator_session_id));
   }
 }

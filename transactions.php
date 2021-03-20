@@ -75,6 +75,22 @@ $content .= '  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floatin
 
 $content .= '<br /><button id="transaction-search-btn" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" type="submit">Виконати пошук</button></form></div>';
 
+if(isset($_GET['uuid']) || isset($_GET['account']) || isset($_GET['amount']) || isset($_GET['currency']) || isset($_GET['transaction-type']) || isset($_GET['status']) || isset($_GET['opid']) || isset($_GET['description']) || isset($_GET['date'])) {
+  $content .= '<table class="mdl-data-table page-table">
+  <thead>
+  <tr>
+  <th class="mdl-data-table__cell--non-numeric">Номер рахунку</th>
+  <th class="mdl-data-table__cell">Сума</th>
+  <th class="mdl-data-table__cell--non-numeric">Тип транзакції</th>
+  <th class="mdl-data-table__cell--non-numeric">Опис</th>
+  <th class="mdl-data-table__cell--non-numeric">Статус</th>
+  <th class="mdl-data-table__cell">Час створення</th>
+  <th class="mdl-data-table__cell">Дії</th>
+  </tr>
+  </thead>
+  <tbody>';
+}
+
 $page->setContent($content);
 $page->create();
  ?>
