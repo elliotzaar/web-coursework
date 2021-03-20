@@ -17,6 +17,10 @@ class Transactions {
     return Database::query('SELECT * FROM `transaction_types`');
   }
 
+  public static function getTransactionType($id) {
+    return Database::query('SELECT `name` FROM `transaction_types` WHERE `id` = :id', array('id' => $id))[0][0];
+  }
+
   public static function transactionTypeExists($id) {
     $res = Database::query('SELECT COUNT(*) FROM `transaction_types` WHERE `id` = :id', array('id' => $id));
     return $res[0][0] == '1';
@@ -28,6 +32,60 @@ class Transactions {
     $uuid = Transactions::generateUUID();
 
     return Database::insertQuery('INSERT INTO `transactions` (`uuid`, `account_id`, `target_account_id`, `amount`, `transaction_type_id`, `description`, `creator_session_id`) VALUES (:uuid, :accid, :taccid, :amount, :ttid, :descr, :csid)', array('uuid' => $uuid, 'accid' => $account_id, 'taccid' => $target_account_id, 'amount' => $amount, 'ttid' => $transaction_type_id, 'descr' => $description, 'csid' => $creator_session_id));
+  }
+
+  public static function searchTransactions($uuid, $account_number, $amount, $currency_id, $transaction_type_id, $status, $operator_id, $description, $date) {
+    $query = 'SELECT * FROM `transactions` WHERE `description` LIKE :description';
+    $query_params = array('description' => '%'.$description.'%');
+
+    if($uuid != '') {
+      $query .= ' AND `uuid` = :uuid';
+      $query_params['uuid'] = $uuid;
+    }
+    if($account_number != '') {
+      $acc_id = -1;
+
+      if(Accounts::accountNumberExists($account_number)) {
+        $acc_id = Accounts::getAccountRowByNum($account_number)['id'];
+      }
+
+      $query .= ' AND (`account_id` = '.$acc_id.' OR `target_account_id` = '.$acc_id.')';
+    }
+    if($amount != '') {
+      $query .= ' AND `amount` = :amount';
+      $query_params['amount'] = $amount;
+    }
+    if($currency_id != '' && $currency_id != '0') {
+      $query .= ' AND `account_id` IN (SELECT `accounts`.`id` FROM `accounts` WHERE `accounts`.`currency_id` = :currid)';
+      $query_params['currid'] = $currency_id;
+    }
+    if($transaction_type_id != '' && $transaction_type_id != '0') {
+      $query .= ' AND `transaction_type_id` = :ttid';
+      $query_params['ttid'] = $transaction_type_id;
+    }
+    if($status != '' && $status != '0') {
+      $query .= ' AND `status` = :status';
+      $query_params['status'] = $status;
+    }
+    if($operator_id != '') {
+      $query .= ' AND `creator_session_id` IN (SELECT `users_sessions`.`id` FROM `users_sessions` WHERE `users_sessions`.`users_id` = :opid)';
+      $query_params['opid'] = $operator_id;
+    }
+    if($date != '') {
+      $query .= ' AND `create_time` LIKE :dt';
+      $query_params['dt'] = $date.'%';
+    }
+
+    $query .= ' ORDER BY `create_time` DESC';
+
+    $qr = Database::query($query, $query_params);
+    $r = array();
+
+    if(count($qr) > 0) {
+      $r = $qr;
+    }
+
+    return $r;
   }
 }
 

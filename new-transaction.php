@@ -25,14 +25,17 @@ if(isset($_POST['from-account']) && isset($_POST['target-account']) && isset($_P
       die();
     } else {
       if(Accounts::accountNumberExists($_POST['from-account']) && Accounts::accountNumberExists($_POST['target-account']) && Accounts::getAccountRowByNum($_POST['from-account'])['currency_id'] == Accounts::getAccountRowByNum($_POST['target-account'])['currency_id'] && $_POST['target-account'] != $_POST['from-account']) {
-        if(($_POST['transaction-type'] == 1 || $_POST['transaction-type'] == 3) && Accounts::getAccountBalance(Accounts::getAccountRowByNum($_POST['from-account'])['id']) < floatval($_POST['amount'])) {
+        $tr = Transactions::createTransaction($_POST['from-account'], $_POST['target-account'], $_POST['amount'], $_POST['transaction-type'], $_POST['description'], $_COOKIE['sid']);
 
-        } else {
-          $tr = Transactions::createTransaction($_POST['from-account'], $_POST['target-account'], $_POST['amount'], $_POST['transaction-type'], $_POST['description'], $_COOKIE['sid']);
-          $page->setContent('Транзакцію створено. Потребує підтвердження другим оператором.');
-          $page->create();
-          die();
+        $content = 'Транзакцію створено. Потребує підтвердження другим оператором.';
+
+        if(($_POST['transaction-type'] == 1 || $_POST['transaction-type'] == 3) && Accounts::getAvailableAccountBalance(Accounts::getAccountRowByNum($_POST['from-account'])['id']) < 0) {
+          $content .= '<br /><strong><font color="#7f0000"><span class="material-icons">warning_amber</span><br />ЗВЕРНІТЬ УВАГУ! ЗАЛИШОК НА РАХУНКУ КОРИСТУВАЧА ПІСЛЯ ПРОВЕДЕННЯ ОПЕРАЦІЇ БУДЕ ВІД\'ЄМНИМ!</font></strong>';
         }
+
+        $page->setContent($content);
+        $page->create();
+        die();
       } else {
         header("Location: ./new-transaction.php?invalidacc");
         die();

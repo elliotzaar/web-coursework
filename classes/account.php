@@ -83,7 +83,7 @@ class Accounts {
   }
 
   public static function getAvailableAccountBalance($acc_id) {
-    return Accounts::getAccountBalance($acc_id) - Accounts::getAccountBlockedBalance($acc_id);
+    return number_format((float)Accounts::getAccountBalance($acc_id) - Accounts::getAccountBlockedBalance($acc_id), 2, '.', '');
   }
 }
 ?>
