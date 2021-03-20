@@ -38,6 +38,7 @@ if(isset($_GET['id'])) {
           $content .= 'Кредит: '.$acc_tr['number'].' - '.$acc_tr['name'].'<br />';
           $content .= 'Тип транзакції: '.Transactions::getTransactionTypeInfo($tr['transaction_type_id'])['name'].' ('.Transactions::getTransactionTypeInfo($tr['transaction_type_id'])['description'].')'.'<br />';
           $content .= 'Сума транзакції: '.$tr['amount'].' '.Currency::getCurrencyRow($acc_r['currency_id'])['code'].'<br />';
+          $content .= 'Призначення: '.$tr['description'].'<br />';
           $content .= 'Оператор: '.UserAccount::getUsername(Session::getSession($tr['creator_session_id'])['users_id']).'<br />';
 
           $content .= '<div class="carditem-border-top"><button onclick="location.href=\'authorize-transaction.php?id='.$tr['id'].'&success\'" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">Авторизувати</button>';

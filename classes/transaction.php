@@ -107,9 +107,9 @@ class Transactions {
     if($auth_status) {
       Database::query('UPDATE `accounts` SET `balance` = :bal WHERE `accounts`.`id` = :accid', array('bal' => Accounts::getAccountBalance($tr['account_id']) - floatval($tr['amount']), 'accid' => $tr['account_id']));
       Database::query('UPDATE `accounts` SET `balance` = :bal WHERE `accounts`.`id` = :accid', array('bal' => Accounts::getAccountBalance($tr['target_account_id']) + floatval($tr['amount']), 'accid' => $tr['target_account_id']));
-      Database::query('UPDATE `transactions` SET `status` = "AUTHORIZED", `controller_session_id` = :csid, `controller_time` = NOW() WHERE `transactions`.`id` = :trid', array('trid' => $transaction_id, 'csid' => $user_session_id));
+      Database::query('UPDATE `transactions` SET `status` = "AUTHORIZED", `controller_session_id` = :csid, `controller_time` = CURRENT_TIMESTAMP() WHERE `transactions`.`id` = :trid', array('trid' => $transaction_id, 'csid' => $user_session_id));
     } else {
-      Database::query('UPDATE `transactions` SET `status` = "CANCELLED", `controller_session_id` = :csid, `controller_time` = NOW() WHERE `transactions`.`id` = :trid', array('trid' => $transaction_id, 'csid' => $user_session_id));
+      Database::query('UPDATE `transactions` SET `status` = "CANCELLED", `controller_session_id` = :csid, `controller_time` = CURRENT_TIMESTAMP() WHERE `transactions`.`id` = :trid', array('trid' => $transaction_id, 'csid' => $user_session_id));
     }
   }
 }
