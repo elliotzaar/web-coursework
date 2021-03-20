@@ -4,6 +4,7 @@ include_once('classes/log.php');
 include_once('classes/access-rules.php');
 include_once('classes/account.php');
 include_once('classes/transaction.php');
+include_once('classes/user.php');
 
 $usr_perms = AccessRules::getUsersPermissions($_COOKIE['uid']);
 
@@ -103,10 +104,10 @@ if(isset($_GET['uuid']) && isset($_GET['account']) && isset($_GET['amount']) && 
       <td class="mdl-data-table__cell--non-numeric">'.$sr['status'].'</td>
       <td class="mdl-data-table__cell">'.$sr['create_time'].'</td>
       <td class="mdl-data-table__cell">';
-        if($sr['status'] == 'HOLD' && AccessRules::hasPermission('AUTH_TRANSACTIONS', $usr_perms)) {
-          $content .= '<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" id="tr-search-auth-item-'.$sr['id'].'"><i class="material-icons">flaky</i></button><div class="mdl-tooltip" data-mdl-for="tr-search-auth-item-'.$sr['id'].'">Авторизація / відхилення</div>';
+        if($sr['status'] == 'HOLD' && ((Session::getSession($sr['creator_session_id'])['users_id'] != $_COOKIE['uid'] && AccessRules::hasPermission('AUTH_TRANSACTIONS', $usr_perms)) || AccessRules::hasPermission('AUTH_SELFTRANSACTIONS', $usr_perms))) {
+          $content .= '<button onclick="location.href=\'authorize-transaction.php?id='.$sr['id'].'\'" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" id="tr-search-auth-item-'.$sr['id'].'"><i class="material-icons">flaky</i></button><div class="mdl-tooltip" data-mdl-for="tr-search-auth-item-'.$sr['id'].'">Авторизація / відхилення</div>';
         }
-        if(AccessRules::hasPermission('ROLLBACK_TRANSACTIONS', $usr_perms) || $sr['creator_session_id'] == $_COOKIE['sid']) {
+        if(AccessRules::hasPermission('ROLLBACK_TRANSACTIONS', $usr_perms) || Session::getSession($sr['creator_session_id'])['users_id'] == $_COOKIE['uid']) {
           $content .= '<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" id="tr-search-del-item-'.$sr['id'].'"><i class="material-icons">restore</i></button><div class="mdl-tooltip" data-mdl-for="tr-search-del-item-'.$sr['id'].'">Видалити</div>';
         }
 
@@ -114,6 +115,10 @@ if(isset($_GET['uuid']) && isset($_GET['account']) && isset($_GET['amount']) && 
   }
 
   $content .= '</tbody></table>';
+
+  if(count($transactions_search_results) > 0) {
+    $content .= '<br /><button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">Сформувати виписку</button>';
+  }
 }
 
 $page->setContent($content);

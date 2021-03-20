@@ -21,6 +21,10 @@ class Transactions {
     return Database::query('SELECT `name` FROM `transaction_types` WHERE `id` = :id', array('id' => $id))[0][0];
   }
 
+  public static function getTransactionTypeInfo($id) {
+    return Database::query('SELECT * FROM `transaction_types` WHERE `id` = :id', array('id' => $id))[0];
+  }
+
   public static function transactionTypeExists($id) {
     $res = Database::query('SELECT COUNT(*) FROM `transaction_types` WHERE `id` = :id', array('id' => $id));
     return $res[0][0] == '1';
@@ -32,6 +36,15 @@ class Transactions {
     $uuid = Transactions::generateUUID();
 
     return Database::insertQuery('INSERT INTO `transactions` (`uuid`, `account_id`, `target_account_id`, `amount`, `transaction_type_id`, `description`, `creator_session_id`) VALUES (:uuid, :accid, :taccid, :amount, :ttid, :descr, :csid)', array('uuid' => $uuid, 'accid' => $account_id, 'taccid' => $target_account_id, 'amount' => $amount, 'ttid' => $transaction_type_id, 'descr' => $description, 'csid' => $creator_session_id));
+  }
+
+  public static function getTransaction($id) {
+    $res = Database::query('SELECT * FROM `transactions` WHERE `id` = :id', array('id' => $id));
+    if(count($res) > 0) {
+      return $res[0];
+    } else {
+      return -1;
+    }
   }
 
   public static function searchTransactions($uuid, $account_number, $amount, $currency_id, $transaction_type_id, $status, $operator_id, $description, $date) {
@@ -86,6 +99,18 @@ class Transactions {
     }
 
     return $r;
+  }
+
+  public static function setAuthorizationStatus($transaction_id, $user_session_id, $auth_status) {
+    $tr = Transactions::getTransaction($transaction_id);
+
+    if($auth_status) {
+      Database::query('UPDATE `accounts` SET `balance` = :bal WHERE `accounts`.`id` = :accid', array('bal' => Accounts::getAccountBalance($tr['account_id']) - floatval($tr['amount']), 'accid' => $tr['account_id']));
+      Database::query('UPDATE `accounts` SET `balance` = :bal WHERE `accounts`.`id` = :accid', array('bal' => Accounts::getAccountBalance($tr['target_account_id']) + floatval($tr['amount']), 'accid' => $tr['target_account_id']));
+      Database::query('UPDATE `transactions` SET `status` = "AUTHORIZED", `controller_session_id` = :csid, `controller_time` = NOW() WHERE `transactions`.`id` = :trid', array('trid' => $transaction_id, 'csid' => $user_session_id));
+    } else {
+      Database::query('UPDATE `transactions` SET `status` = "CANCELLED", `controller_session_id` = :csid, `controller_time` = NOW() WHERE `transactions`.`id` = :trid', array('trid' => $transaction_id, 'csid' => $user_session_id));
+    }
   }
 }
 
