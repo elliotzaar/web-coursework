@@ -79,44 +79,45 @@ $content .= '<br /><button id="transaction-search-btn" class="mdl-button mdl-js-
 if(isset($_GET['uuid']) && isset($_GET['account']) && isset($_GET['amount']) && isset($_GET['currency']) && isset($_GET['transaction-type']) && isset($_GET['status']) && isset($_GET['opid']) && isset($_GET['description']) && isset($_GET['date'])) {
   $transactions_search_results = Transactions::searchTransactions($_GET['uuid'], $_GET['account'], $_GET['amount'], $_GET['currency'], $_GET['transaction-type'], $_GET['status'], $_GET['opid'], $_GET['description'], $_GET['date']);
   $content .= '<br />Знайдено транзакцій: '.count($transactions_search_results).'<br /><br />';
-  $content .= '<table class="mdl-data-table page-table">
-  <thead>
-  <tr>
-  <th class="mdl-data-table__cell">Дебет</th>
-  <th class="mdl-data-table__cell">Кредит</th>
-  <th class="mdl-data-table__cell">Сума</th>
-  <th class="mdl-data-table__cell--non-numeric">Тип транзакції</th>
-  <th class="mdl-data-table__cell--non-numeric">Опис</th>
-  <th class="mdl-data-table__cell--non-numeric">Статус</th>
-  <th class="mdl-data-table__cell">Час створення</th>
-  <th class="mdl-data-table__cell">Дії</th>
-  </tr>
-  </thead>
-  <tbody>';
-
-  foreach($transactions_search_results as $sr) {
-    $content .= '<tr>';
-    $content .= '<td class="mdl-data-table__cell">'.Accounts::getAccountRow($sr['account_id'])['number'].'</td>
-      <td class="mdl-data-table__cell">'.Accounts::getAccountRow($sr['target_account_id'])['number'].'</td>
-      <td class="mdl-data-table__cell">'.(($sr['transaction_type_id'] == 1 || $sr['transaction_type_id'] == 3) && ($_GET['account'] == '' || Accounts::getAccountRow($sr['account_id'])['number'] == $_GET['account']) ? '-' : '').$sr['amount'].'</td>
-      <td class="mdl-data-table__cell--non-numeric">'.Transactions::getTransactionType($sr['transaction_type_id']).'</td>
-      <td class="mdl-data-table__cell--non-numeric">'.(strlen($sr['description']) > 15 ? substr($sr['description'],0,12)."..." : $sr['description']).'</td>
-      <td class="mdl-data-table__cell--non-numeric">'.$sr['status'].'</td>
-      <td class="mdl-data-table__cell">'.$sr['create_time'].'</td>
-      <td class="mdl-data-table__cell">';
-        if($sr['status'] == 'HOLD' && ((Session::getSession($sr['creator_session_id'])['users_id'] != $_COOKIE['uid'] && AccessRules::hasPermission('AUTH_TRANSACTIONS', $usr_perms)) || AccessRules::hasPermission('AUTH_SELFTRANSACTIONS', $usr_perms))) {
-          $content .= '<button onclick="location.href=\'authorize-transaction.php?id='.$sr['id'].'\'" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" id="tr-search-auth-item-'.$sr['id'].'"><i class="material-icons">flaky</i></button><div class="mdl-tooltip" data-mdl-for="tr-search-auth-item-'.$sr['id'].'">Авторизація / відхилення</div>';
-        }
-        if(AccessRules::hasPermission('ROLLBACK_TRANSACTIONS', $usr_perms) || Session::getSession($sr['creator_session_id'])['users_id'] == $_COOKIE['uid']) {
-          $content .= '<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" id="tr-search-del-item-'.$sr['id'].'"><i class="material-icons">restore</i></button><div class="mdl-tooltip" data-mdl-for="tr-search-del-item-'.$sr['id'].'">Видалити</div>';
-        }
-
-    $content .= '<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons" id="tr-search-receipt-item-'.$sr['id'].'">receipt_long</i></button><div class="mdl-tooltip" data-mdl-for="tr-search-receipt-item-'.$sr['id'].'">Переглянути квитанцію</div></td></tr>';
-  }
-
-  $content .= '</tbody></table>';
 
   if(count($transactions_search_results) > 0) {
+    $content .= '<table class="mdl-data-table page-table">
+    <thead>
+    <tr>
+    <th class="mdl-data-table__cell">Дебет</th>
+    <th class="mdl-data-table__cell">Кредит</th>
+    <th class="mdl-data-table__cell">Сума</th>
+    <th class="mdl-data-table__cell--non-numeric">Тип транзакції</th>
+    <th class="mdl-data-table__cell--non-numeric">Опис</th>
+    <th class="mdl-data-table__cell--non-numeric">Статус</th>
+    <th class="mdl-data-table__cell">Час створення</th>
+    <th class="mdl-data-table__cell">Дії</th>
+    </tr>
+    </thead>
+    <tbody>';
+
+    foreach($transactions_search_results as $sr) {
+      $content .= '<tr>';
+      $content .= '<td class="mdl-data-table__cell">'.Accounts::getAccountRow($sr['account_id'])['number'].'</td>
+        <td class="mdl-data-table__cell">'.Accounts::getAccountRow($sr['target_account_id'])['number'].'</td>
+        <td class="mdl-data-table__cell">'.$sr['amount'].'</td>
+        <td class="mdl-data-table__cell--non-numeric">'.Transactions::getTransactionType($sr['transaction_type_id']).'</td>
+        <td class="mdl-data-table__cell--non-numeric">'.(strlen($sr['description']) > 15 ? substr($sr['description'],0,12)."..." : $sr['description']).'</td>
+        <td class="mdl-data-table__cell--non-numeric">'.$sr['status'].'</td>
+        <td class="mdl-data-table__cell">'.$sr['create_time'].'</td>
+        <td class="mdl-data-table__cell">';
+          if($sr['status'] == 'HOLD' && ((Session::getSession($sr['creator_session_id'])['users_id'] != $_COOKIE['uid'] && AccessRules::hasPermission('AUTH_TRANSACTIONS', $usr_perms)) || AccessRules::hasPermission('AUTH_SELFTRANSACTIONS', $usr_perms))) {
+            $content .= '<button onclick="location.href=\'authorize-transaction.php?id='.$sr['id'].'\'" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" id="tr-search-auth-item-'.$sr['id'].'"><i class="material-icons">flaky</i></button><div class="mdl-tooltip" data-mdl-for="tr-search-auth-item-'.$sr['id'].'">Авторизація / відхилення</div>';
+          }
+          if(($sr['status'] == 'HOLD' || $sr['status'] == 'AUTHORIZED') && (AccessRules::hasPermission('ROLLBACK_TRANSACTIONS', $usr_perms) || Session::getSession($sr['creator_session_id'])['users_id'] == $_COOKIE['uid'])) {
+            $content .= '<button onclick="location.href=\'rollback-transaction.php?id='.$sr['id'].'\'" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" id="tr-search-del-item-'.$sr['id'].'"><i class="material-icons">restore</i></button><div class="mdl-tooltip" data-mdl-for="tr-search-del-item-'.$sr['id'].'">Видалити</div>';
+          }
+
+      $content .= '<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons" id="tr-search-receipt-item-'.$sr['id'].'">receipt_long</i></button><div class="mdl-tooltip" data-mdl-for="tr-search-receipt-item-'.$sr['id'].'">Переглянути квитанцію</div></td></tr>';
+    }
+
+    $content .= '</tbody></table>';
+
     $content .= '<br /><button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">Сформувати виписку</button>';
   }
 }

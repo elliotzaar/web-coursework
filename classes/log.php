@@ -12,6 +12,7 @@ class UsersLog {
   public const ASSIGN_ROLE = 'ASSIGN_ROLE';
   public const CREATE_ACCOUNT = 'CREATE_ACCOUNT';
   public const EDIT_ACCOUNT = 'EDIT_ACCOUNT';
+  public const ROLLBACK_TRANSACTION = 'ROLLBACK_TRANSACTION';
 
   public static function record($operator_sid, $action, $description) {
     Database::query('INSERT INTO `users_log` (`action`, `action_description`, `operator_session_id`) VALUES (:action, :action_description, :operator_session_id)', array('action' => $action, 'action_description' => $description, 'operator_session_id' => $operator_sid));
