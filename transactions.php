@@ -69,15 +69,20 @@ $content .= '  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floatin
     <input class="mdl-textfield__input" type="text" name="description" id="transaction-search-description" value="'.(isset($_GET['description']) ? $_GET['description'] : '').'">
     <label class="mdl-textfield__label" for="transaction-search-description">Призначення</label>
   </div>
+  <div>
   <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-    <label class="mdl-textfield__label" for="transaction-search-date">Дата транзакції</label>
-    <input class="mdl-textfield__input" type="date" placeholder="" name="date" id="transaction-search-date" value="'.(isset($_GET['date']) ? $_GET['date'] : '').'">
-  </div>';
+    <label class="mdl-textfield__label" for="transaction-search-from-date">Початок періоду</label>
+    <input class="mdl-textfield__input" type="date" placeholder="" name="from-date" id="transaction-search-from-date" value="'.(isset($_GET['from-date']) ? $_GET['from-date'] : '').'">
+  </div>
+  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+    <label class="mdl-textfield__label" for="transaction-search-to-date">Кінець періоду</label>
+    <input class="mdl-textfield__input" type="date" placeholder="" name="to-date" id="transaction-search-to-date" value="'.(isset($_GET['to-date']) ? $_GET['to-date'] : '').'">
+  </div></div>';
 
 $content .= '<br /><button id="transaction-search-btn" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" type="submit">Виконати пошук</button></form></div>';
 
-if(isset($_GET['uuid']) && isset($_GET['account']) && isset($_GET['amount']) && isset($_GET['currency']) && isset($_GET['transaction-type']) && isset($_GET['status']) && isset($_GET['opid']) && isset($_GET['description']) && isset($_GET['date'])) {
-  $transactions_search_results = Transactions::searchTransactions($_GET['uuid'], $_GET['account'], $_GET['amount'], $_GET['currency'], $_GET['transaction-type'], $_GET['status'], $_GET['opid'], $_GET['description'], $_GET['date']);
+if(isset($_GET['uuid']) && isset($_GET['account']) && isset($_GET['amount']) && isset($_GET['currency']) && isset($_GET['transaction-type']) && isset($_GET['status']) && isset($_GET['opid']) && isset($_GET['description']) && isset($_GET['from-date']) && isset($_GET['to-date'])) {
+  $transactions_search_results = Transactions::searchTransactions($_GET['uuid'], $_GET['account'], $_GET['amount'], $_GET['currency'], $_GET['transaction-type'], $_GET['status'], $_GET['opid'], $_GET['description'], $_GET['from-date'], $_GET['to-date']);
   $content .= '<br />Знайдено транзакцій: '.count($transactions_search_results).'<br /><br />';
 
   if(count($transactions_search_results) > 0) {
@@ -113,12 +118,12 @@ if(isset($_GET['uuid']) && isset($_GET['account']) && isset($_GET['amount']) && 
             $content .= '<button onclick="location.href=\'rollback-transaction.php?id='.$sr['id'].'\'" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" id="tr-search-del-item-'.$sr['id'].'"><i class="material-icons">restore</i></button><div class="mdl-tooltip" data-mdl-for="tr-search-del-item-'.$sr['id'].'">Видалити</div>';
           }
 
-      $content .= '<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons" id="tr-search-receipt-item-'.$sr['id'].'">receipt_long</i></button><div class="mdl-tooltip" data-mdl-for="tr-search-receipt-item-'.$sr['id'].'">Переглянути квитанцію</div></td></tr>';
+      $content .= '<button onclick="window.open(\'receipt.php?uuid='.$sr['uuid'].'\')" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons" id="tr-search-receipt-item-'.$sr['id'].'">receipt_long</i></button><div class="mdl-tooltip" data-mdl-for="tr-search-receipt-item-'.$sr['id'].'">Переглянути квитанцію</div></td></tr>';
     }
 
     $content .= '</tbody></table>';
 
-    $content .= '<br /><button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">Сформувати виписку</button>';
+    $content .= '<br /><button onclick="window.open(\'account-statement.php?'.$_SERVER['QUERY_STRING'].'\')" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">Сформувати друковану форму</button>';
   }
 }
 

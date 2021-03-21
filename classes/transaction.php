@@ -47,13 +47,22 @@ class Transactions {
     }
   }
 
-  public static function searchTransactions($uuid, $account_number, $amount, $currency_id, $transaction_type_id, $status, $operator_id, $description, $date) {
+  public static function getTransactionByUUID($uuid) {
+    $res = Database::query('SELECT * FROM `transactions` WHERE `uuid` = :uuid', array('uuid' => $uuid));
+    if(count($res) > 0) {
+      return $res[0];
+    } else {
+      return -1;
+    }
+  }
+
+  public static function searchTransactions($uuid, $account_number, $amount, $currency_id, $transaction_type_id, $status, $operator_id, $description, $fromdate, $todate) {
     $query = 'SELECT * FROM `transactions` WHERE `description` LIKE :description';
     $query_params = array('description' => '%'.$description.'%');
 
     if($uuid != '') {
-      $query .= ' AND `uuid` = :uuid';
-      $query_params['uuid'] = $uuid;
+      $query .= ' AND `uuid` LIKE :uuid';
+      $query_params['uuid'] = $uuid.'%';
     }
     if($account_number != '') {
       $acc_id = -1;
@@ -84,9 +93,10 @@ class Transactions {
       $query .= ' AND `creator_session_id` IN (SELECT `users_sessions`.`id` FROM `users_sessions` WHERE `users_sessions`.`users_id` = :opid)';
       $query_params['opid'] = $operator_id;
     }
-    if($date != '') {
-      $query .= ' AND `create_time` LIKE :dt';
-      $query_params['dt'] = $date.'%';
+    if($fromdate != '' && $todate) {
+      $query .= ' AND ( `create_time` BETWEEN :fromdate AND :todate )';
+      $query_params['fromdate'] = $fromdate.' 00:00:00';
+      $query_params['todate'] = $todate.' 23:59:00';
     }
 
     $query .= ' ORDER BY `create_time` DESC';
