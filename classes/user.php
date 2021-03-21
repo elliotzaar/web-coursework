@@ -84,6 +84,15 @@ class UserAccount {
   public static function createUser($username, $password) {
     return Database::insertQuery('INSERT INTO `users` (`username`, `password`) VALUES (:username, :password)', array('username' => $username, 'password' => UserAccount::deriveSecurePassword($password)));
   }
+
+  public static function changePassword($uid, $username, $old_password, $new_password) {
+    if(UserAccount::checkCredentials($username, $old_password)) {
+      Database::query('UPDATE `users` SET `password`=:password WHERE `uid` = :uid', array('uid' => $id, 'password' => UserAccount::deriveSecurePassword($new_password)));
+      return 1;
+    } else {
+      return -1;
+    }
+  }
 }
 
 class Session {

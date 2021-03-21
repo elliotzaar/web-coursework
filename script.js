@@ -30,6 +30,14 @@ function processRoleControlChange(user_id, role_id) {
   });
 }
 
+function processPasswordChange() {
+  if(document.getElementById('changeusrnewpassword').value == document.getElementById('changeusrnewpasswordc').value && document.getElementById('changeusrnewpassword').value.length >= 8) {
+    document.getElementById('changeusrpassword-btn').disabled = false;
+  } else {
+    document.getElementById('changeusrpassword-btn').disabled = true;
+  }
+}
+
 Array.from(document.getElementsByClassName("role-switch-perms")).forEach(function(e) {
   e.addEventListener('click', function() {
     processRoleSwitchPerm(e.id.split('-')[1], e.id.split('-')[4], e.checked);

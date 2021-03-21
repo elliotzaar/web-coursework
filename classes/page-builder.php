@@ -72,6 +72,7 @@ class Page {
         <button id="menu-lower-right" class="mdl-button mdl-js-button mdl-button--icon"><i class="material-icons">more_vert</i></button>
         <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="menu-lower-right">
           <li disabled class="mdl-menu__item">Ви увійшли як '.$_COOKIE['username'].'</li>
+          <a style="text-decoration: none" href="change-password.php"><li class="mdl-menu__item">Змінити пароль</li></a>
           <a style="text-decoration: none" href="logout.php"><li class="mdl-menu__item">Вийти</li></a>
         </ul>
       </div>

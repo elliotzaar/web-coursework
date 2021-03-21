@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.4
+-- version 5.1.0
 -- https://www.phpmyadmin.net/
 --
--- Хост: 127.0.0.1
--- Время создания: Мар 19 2021 г., 15:20
--- Версия сервера: 10.4.16-MariaDB
--- Версия PHP: 7.4.12
+-- Host: 127.0.0.1
+-- Generation Time: Mar 21, 2021 at 02:15 PM
+-- Server version: 10.4.18-MariaDB
+-- PHP Version: 8.0.3
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- База данных: `pyxis`
+-- Database: `pyxis`
 --
 
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `accounts`
+-- Table structure for table `accounts`
 --
 
 CREATE TABLE `accounts` (
@@ -37,18 +37,18 @@ CREATE TABLE `accounts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- Дамп данных таблицы `accounts`
+-- Dumping data for table `accounts`
 --
 
 INSERT INTO `accounts` (`id`, `number`, `name`, `balance`, `currency_id`, `create_time`) VALUES
-(1, 'UA212', 'Заар Елліот Юрійович', '2435.00', 2, '2021-03-17 16:13:44'),
+(1, 'UA212', 'Заар Елліот Юрійович', '701.60', 2, '2021-03-17 16:13:44'),
 (3, 'UA211', 'Заар Елліот Юрійович', '1.10', 3, '2021-03-19 08:46:57'),
-(4, 'UA210', 'Заар Елліот Юрійович', '0.00', 2, '2021-03-19 08:49:21');
+(4, 'UA210', 'Заар Елліот Юрійович', '1733.40', 2, '2021-03-19 08:49:21');
 
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `currencies`
+-- Table structure for table `currencies`
 --
 
 CREATE TABLE `currencies` (
@@ -58,7 +58,7 @@ CREATE TABLE `currencies` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- Дамп данных таблицы `currencies`
+-- Dumping data for table `currencies`
 --
 
 INSERT INTO `currencies` (`id`, `name`, `code`) VALUES
@@ -70,7 +70,7 @@ INSERT INTO `currencies` (`id`, `name`, `code`) VALUES
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `permissions`
+-- Table structure for table `permissions`
 --
 
 CREATE TABLE `permissions` (
@@ -80,7 +80,7 @@ CREATE TABLE `permissions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- Дамп данных таблицы `permissions`
+-- Dumping data for table `permissions`
 --
 
 INSERT INTO `permissions` (`id`, `name`, `description`) VALUES
@@ -92,12 +92,15 @@ INSERT INTO `permissions` (`id`, `name`, `description`) VALUES
 (6, 'VIEW_ACCOUNTS', 'Дозволяє переглядати та шукати рахунки'),
 (7, 'CREATE_ACCOUNTS', 'Дозволяє створювати нові рахунки та редагувати вже створені'),
 (8, 'VIEW_TRANSACTIONS', 'Дозволяє переглядати транзакції'),
-(9, 'CREATE_TRANSACTIONS', 'Дозволяє створювати та проводити транзакції ');
+(9, 'CREATE_TRANSACTIONS', 'Дозволяє створювати та проводити транзакції '),
+(10, 'AUTH_TRANSACTIONS', 'Дозволяє користувачам авторизовувати транзакції, створених іншими користувачами'),
+(11, 'ROLLBACK_TRANSACTIONS', 'Дозволяє видаляти вже авторизовані транзакції'),
+(12, 'AUTH_SELFTRANSACTIONS', 'Дозволяє користувачам авторизовувати всі транзакції, включаючи свої власні ');
 
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `roles`
+-- Table structure for table `roles`
 --
 
 CREATE TABLE `roles` (
@@ -107,7 +110,7 @@ CREATE TABLE `roles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- Дамп данных таблицы `roles`
+-- Dumping data for table `roles`
 --
 
 INSERT INTO `roles` (`id`, `name`, `description`) VALUES
@@ -117,7 +120,7 @@ INSERT INTO `roles` (`id`, `name`, `description`) VALUES
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `roles_permissions`
+-- Table structure for table `roles_permissions`
 --
 
 CREATE TABLE `roles_permissions` (
@@ -126,7 +129,7 @@ CREATE TABLE `roles_permissions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- Дамп данных таблицы `roles_permissions`
+-- Dumping data for table `roles_permissions`
 --
 
 INSERT INTO `roles_permissions` (`roles_id`, `permissions_id`) VALUES
@@ -142,12 +145,16 @@ INSERT INTO `roles_permissions` (`roles_id`, `permissions_id`) VALUES
 (1, 8),
 (1, 9),
 (4, 8),
-(4, 9);
+(4, 9),
+(4, 10),
+(1, 10),
+(1, 11),
+(1, 12);
 
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `transactions`
+-- Table structure for table `transactions`
 --
 
 CREATE TABLE `transactions` (
@@ -159,50 +166,39 @@ CREATE TABLE `transactions` (
   `transaction_type_id` int(11) NOT NULL,
   `description` text NOT NULL,
   `creator_session_id` int(11) NOT NULL,
-  `create_time` datetime NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Дамп данных таблицы `transactions`
---
-
-INSERT INTO `transactions` (`id`, `uuid`, `account_id`, `target_account_id`, `amount`, `transaction_type_id`, `description`, `creator_session_id`, `create_time`) VALUES
-(1, '4ebcdf39-a0af-4eed-9d37-4b215edf', 1, 4, '866.00', 2, 'AAA', 45, '2021-03-19 16:10:52'),
-(2, 'fb4d4b34-91c9-4fc6-a08c-0ed427c3ca49', 1, 4, '866.00', 1, 'AAA', 45, '2021-03-19 16:12:02'),
-(3, '94e8a460-39d7-495c-9e0f-b276f08e8599', 1, 4, '866.00', 2, 'AAA', 45, '2021-03-19 16:13:16'),
-(4, '454f2a06-6714-49e2-b900-66ea2d96a173', 1, 4, '866.00', 2, 'AAA', 45, '2021-03-19 16:13:18'),
-(5, 'd449b39e-b1ff-493a-8aa8-59adff816093', 1, 4, '866.00', 2, 'AAA', 45, '2021-03-19 16:13:18'),
-(6, '73548a9f-fe26-43d5-a809-62335991879e', 1, 4, '866.00', 2, 'AAA', 45, '2021-03-19 16:14:29');
-
--- --------------------------------------------------------
-
---
--- Структура таблицы `transaction_status`
---
-
-CREATE TABLE `transaction_status` (
-  `transaction_uuid` varchar(36) NOT NULL,
+  `create_time` datetime NOT NULL DEFAULT current_timestamp(),
   `status` enum('HOLD','AUTHORIZED','CANCELLED','DELETED') NOT NULL DEFAULT 'HOLD',
   `controller_session_id` int(11) DEFAULT NULL,
   `controller_time` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- Дамп данных таблицы `transaction_status`
+-- Dumping data for table `transactions`
 --
 
-INSERT INTO `transaction_status` (`transaction_uuid`, `status`, `controller_session_id`, `controller_time`) VALUES
-('4', 'HOLD', NULL, NULL),
-('454f2a06-6714-49e2-b900-66ea2d96a173', 'HOLD', NULL, NULL),
-('73548a9f-fe26-43d5-a809-62335991879e', 'HOLD', NULL, NULL),
-('94e8a460-39d7-495c-9e0f-b276f08e8599', 'HOLD', NULL, NULL),
-('d449b39e-b1ff-493a-8aa8-59adff816093', 'HOLD', NULL, NULL),
-('fb4d4b34-91c9-4fc6-a08c-0ed427c3ca49', 'HOLD', NULL, NULL);
+INSERT INTO `transactions` (`id`, `uuid`, `account_id`, `target_account_id`, `amount`, `transaction_type_id`, `description`, `creator_session_id`, `create_time`, `status`, `controller_session_id`, `controller_time`) VALUES
+(1, '4ebcdf39-a0af-4eed-9d37-4b215edf', 1, 4, '866.00', 2, 'AAA', 45, '2021-03-19 16:10:52', 'AUTHORIZED', NULL, NULL),
+(2, 'fb4d4b34-91c9-4fc6-a08c-0ed427c3ca49', 1, 4, '866.00', 1, 'AAA', 45, '2021-03-19 16:12:02', 'DELETED', 48, '2021-03-20 17:23:12'),
+(3, '94e8a460-39d7-495c-9e0f-b276f08e8599', 1, 4, '866.00', 2, 'AAA', 45, '2021-03-19 16:13:16', 'AUTHORIZED', 48, '2021-03-20 00:00:00'),
+(4, '454f2a06-6714-49e2-b900-66ea2d96a173', 1, 4, '866.00', 1, 'AAA', 45, '2021-03-19 16:13:18', 'DELETED', NULL, NULL),
+(5, 'd449b39e-b1ff-493a-8aa8-59adff816093', 1, 4, '866.00', 2, 'AAA', 45, '2021-03-19 16:13:18', 'AUTHORIZED', 48, '2021-03-20 17:24:07'),
+(6, '73548a9f-fe26-43d5-a809-62335991879e', 1, 4, '866.00', 2, 'AAA', 45, '2021-03-19 16:14:29', 'AUTHORIZED', 48, '2021-03-20 17:23:57'),
+(7, '0b3d23c1-8655-485e-a6ae-b59413bf66e4', 1, 4, '21.00', 2, 'sdghsdgzsdgsdgsdgsdghs', 48, '2021-03-20 13:40:42', 'CANCELLED', 48, '2021-03-20 00:00:00'),
+(8, '69d4e1e8-48e9-4b17-afc4-2031e5781fe8', 1, 4, '1568.00', 1, 'asa', 48, '2021-03-20 15:50:57', 'DELETED', NULL, NULL),
+(9, 'd770a6c8-6beb-4d16-b54e-a21ec2dc2632', 1, 4, '0.20', 3, '', 48, '2021-03-20 15:52:27', 'AUTHORIZED', NULL, NULL),
+(10, 'b2ec27a4-722f-40a1-9419-806380c46b65', 1, 4, '0.20', 3, '', 48, '2021-03-20 15:54:04', 'AUTHORIZED', 48, '2021-03-20 00:00:00'),
+(11, '387c6cf1-686c-4e3a-894f-7382b69ee99d', 1, 4, '0.20', 3, '', 48, '2021-03-20 15:54:07', 'CANCELLED', 48, '2021-03-20 00:00:00'),
+(12, 'd1e6b5a6-ac6a-4807-9eae-a27b36a85b02', 1, 4, '0.20', 3, '', 48, '2021-03-20 15:54:10', 'AUTHORIZED', 49, '2021-03-21 13:22:08'),
+(13, 'd47648f9-f047-4632-a9ae-18299d0bb758', 1, 4, '0.20', 3, '', 48, '2021-03-20 15:54:14', 'AUTHORIZED', 49, '2021-03-21 13:21:54'),
+(14, '2358a41f-df91-4693-8d6e-42b5d268cfa7', 1, 4, '0.20', 3, '', 48, '2021-03-20 15:54:18', 'AUTHORIZED', 49, '2021-03-21 13:21:42'),
+(15, 'f1973635-b721-4687-969b-5fb6a37c834d', 1, 4, '0.20', 3, '', 48, '2021-03-20 15:54:59', 'AUTHORIZED', 49, '2021-03-21 12:58:07'),
+(16, 'e83ebf64-df3e-4bae-83cc-99536301626a', 1, 4, '0.20', 3, '', 48, '2021-03-20 15:55:14', 'AUTHORIZED', 49, '2021-03-21 12:57:39'),
+(17, '9d84aeb8-d4a4-433f-90dc-6df9ada34ef6', 1, 4, '0.20', 3, '', 48, '2021-03-20 15:55:36', 'AUTHORIZED', 49, '2021-03-21 12:53:13');
 
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `transaction_types`
+-- Table structure for table `transaction_types`
 --
 
 CREATE TABLE `transaction_types` (
@@ -212,18 +208,18 @@ CREATE TABLE `transaction_types` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- Дамп данных таблицы `transaction_types`
+-- Dumping data for table `transaction_types`
 --
 
 INSERT INTO `transaction_types` (`id`, `name`, `description`) VALUES
 (1, 'WITHDRAWAL', 'Зняття з рахунку'),
 (2, 'REFILL', 'Поповнення рахунку'),
-(3, 'ACCOUNT_TRANSFER', 'Переведення коштів');
+(3, 'TRANSFER', 'Переведення коштів');
 
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `users`
+-- Table structure for table `users`
 --
 
 CREATE TABLE `users` (
@@ -235,7 +231,7 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- Дамп данных таблицы `users`
+-- Dumping data for table `users`
 --
 
 INSERT INTO `users` (`uid`, `username`, `password`, `role_id`, `suspended`) VALUES
@@ -246,19 +242,19 @@ INSERT INTO `users` (`uid`, `username`, `password`, `role_id`, `suspended`) VALU
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `users_log`
+-- Table structure for table `users_log`
 --
 
 CREATE TABLE `users_log` (
   `id` bigint(11) UNSIGNED NOT NULL,
-  `action` enum('STOP_SESSION','SUSPEND_USER','UNSUSPEND_USER','CREATE_USER','GRANT_ROLE_PERMISSION','REMOVE_ROLE_PERMISSION','CREATE_ROLE','ASSIGN_ROLE','CREATE_ACCOUNT','EDIT_ACCOUNT') NOT NULL,
+  `action` enum('STOP_SESSION','SUSPEND_USER','UNSUSPEND_USER','CREATE_USER','GRANT_ROLE_PERMISSION','REMOVE_ROLE_PERMISSION','CREATE_ROLE','ASSIGN_ROLE','CREATE_ACCOUNT','EDIT_ACCOUNT','ROLLBACK_TRANSACTION','PASS_CHANGE') NOT NULL,
   `action_description` text DEFAULT NULL,
   `operator_session_id` int(11) NOT NULL,
   `time` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- Дамп данных таблицы `users_log`
+-- Dumping data for table `users_log`
 --
 
 INSERT INTO `users_log` (`id`, `action`, `action_description`, `operator_session_id`, `time`) VALUES
@@ -380,12 +376,33 @@ INSERT INTO `users_log` (`id`, `action`, `action_description`, `operator_session
 (116, 'STOP_SESSION', 'Зупинено сесію ID 41', 43, '2021-03-19 14:53:17'),
 (117, 'STOP_SESSION', 'Зупинено сесію ID 43', 44, '2021-03-19 14:54:03'),
 (118, 'SUSPEND_USER', 'Заблоковано користувача ID 1', 44, '2021-03-19 14:54:34'),
-(119, 'UNSUSPEND_USER', 'Поновлено доступ користувача ID 1', 46, '2021-03-19 14:54:46');
+(119, 'UNSUSPEND_USER', 'Поновлено доступ користувача ID 1', 46, '2021-03-19 14:54:46'),
+(120, 'GRANT_ROLE_PERMISSION', 'Додано дозвіл AUTH_TRANSACTIONS (id10) до ролі admin (id1)', 48, '2021-03-20 15:45:37'),
+(121, 'GRANT_ROLE_PERMISSION', 'Додано дозвіл AUTH_TRANSACTIONS (id10) до ролі accountant (id4)', 48, '2021-03-20 15:45:40'),
+(122, 'REMOVE_ROLE_PERMISSION', 'Видалено дозвіл AUTH_TRANSACTIONS (id10) з ролі admin id1)', 48, '2021-03-20 15:46:40'),
+(123, 'GRANT_ROLE_PERMISSION', 'Додано дозвіл AUTH_TRANSACTIONS (id10) до ролі admin (id1)', 48, '2021-03-20 15:46:44'),
+(124, 'GRANT_ROLE_PERMISSION', 'Додано дозвіл ROLLBACK_TRANSACTIONS (id11) до ролі admin (id1)', 48, '2021-03-20 16:09:28'),
+(125, 'REMOVE_ROLE_PERMISSION', 'Видалено дозвіл ROLLBACK_TRANSACTIONS (id11) з ролі admin id1)', 48, '2021-03-20 16:16:42'),
+(126, 'GRANT_ROLE_PERMISSION', 'Додано дозвіл ROLLBACK_TRANSACTIONS (id11) до ролі admin (id1)', 48, '2021-03-20 16:17:08'),
+(127, 'GRANT_ROLE_PERMISSION', 'Додано дозвіл AUTH_SELFTRANSACTIONS (id12) до ролі admin (id1)', 48, '2021-03-20 16:22:11'),
+(128, 'REMOVE_ROLE_PERMISSION', 'Видалено дозвіл ROLLBACK_TRANSACTIONS (id11) з ролі admin id1)', 48, '2021-03-20 16:27:12'),
+(129, 'REMOVE_ROLE_PERMISSION', 'Видалено дозвіл AUTH_SELFTRANSACTIONS (id12) з ролі admin id1)', 48, '2021-03-20 16:27:19'),
+(130, 'GRANT_ROLE_PERMISSION', 'Додано дозвіл AUTH_SELFTRANSACTIONS (id12) до ролі admin (id1)', 48, '2021-03-20 16:27:35'),
+(131, 'REMOVE_ROLE_PERMISSION', 'Видалено дозвіл AUTH_SELFTRANSACTIONS (id12) з ролі admin id1)', 48, '2021-03-20 16:27:36'),
+(132, 'GRANT_ROLE_PERMISSION', 'Додано дозвіл ROLLBACK_TRANSACTIONS (id11) до ролі admin (id1)', 48, '2021-03-20 16:27:36'),
+(133, 'GRANT_ROLE_PERMISSION', 'Додано дозвіл AUTH_SELFTRANSACTIONS (id12) до ролі admin (id1)', 48, '2021-03-20 16:27:36'),
+(134, 'REMOVE_ROLE_PERMISSION', 'Видалено дозвіл AUTH_SELFTRANSACTIONS (id12) з ролі admin id1)', 48, '2021-03-20 16:39:09'),
+(135, 'GRANT_ROLE_PERMISSION', 'Додано дозвіл AUTH_SELFTRANSACTIONS (id12) до ролі admin (id1)', 48, '2021-03-20 16:39:12'),
+(136, 'ROLLBACK_TRANSACTION', 'Видалено транзакцію UUID fb4d4b34-91c9-4fc6-a08c-0ed427c3ca49, статус AUTHORIZED', 49, '2021-03-21 13:17:32'),
+(137, 'ROLLBACK_TRANSACTION', 'Видалено транзакцію UUID 454f2a06-6714-49e2-b900-66ea2d96a173, статус AUTHORIZED', 49, '2021-03-21 13:19:11'),
+(138, 'ROLLBACK_TRANSACTION', 'Видалено транзакцію UUID 69d4e1e8-48e9-4b17-afc4-2031e5781fe8, статус HOLD', 49, '2021-03-21 13:21:29'),
+(139, 'PASS_CHANGE', 'Невдала спроба зміни паролю', 49, '2021-03-21 15:13:00'),
+(140, 'PASS_CHANGE', 'Змінено пароль', 49, '2021-03-21 15:13:10');
 
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `users_sessions`
+-- Table structure for table `users_sessions`
 --
 
 CREATE TABLE `users_sessions` (
@@ -398,7 +415,7 @@ CREATE TABLE `users_sessions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- Дамп данных таблицы `users_sessions`
+-- Dumping data for table `users_sessions`
 --
 
 INSERT INTO `users_sessions` (`id`, `users_id`, `token`, `stopped`, `address`, `create_time`) VALUES
@@ -448,14 +465,16 @@ INSERT INTO `users_sessions` (`id`, `users_id`, `token`, `stopped`, `address`, `
 (44, 1, '8fbd2eebe11ca610b5d59d9232743eb000ec5e89895c19a423f12336b13799f310ceed9f3fd3c2df37eb3d1b1d03c30fde03a96e7404152ef034cb515328bc21', 0, '::1', '2021-03-19 14:53:39'),
 (45, 1, 'fedbd4daf74752951d4d9248d2d62fed086f51b1bab3eb26e3adfbbfff271fc8cec0a45af4d68ad1f9dbe09e4f5d9f1599a7b83c3f37ffac2618a50777e498c2', 0, '::1', '2021-03-19 14:54:12'),
 (46, 2, '92969f09ac528d9af881bfcb48e2895380c173b0d89126d714161f0aa2a07a9fb826d7adf428204bbeceb064da33ed5aa41da8cea9ae103841744e94f4e8359d', 1, '::1', '2021-03-19 14:54:43'),
-(47, 1, 'be814b74814023c435475da4208e8ba622ae37b0bb0e68abe8110d2f4c4969d76dc034b4190db28c5ba8fc3758010553a7945f60cb5f8c01f72c00d5fcc71597', 0, '::1', '2021-03-19 14:54:55');
+(47, 1, 'be814b74814023c435475da4208e8ba622ae37b0bb0e68abe8110d2f4c4969d76dc034b4190db28c5ba8fc3758010553a7945f60cb5f8c01f72c00d5fcc71597', 0, '::1', '2021-03-19 14:54:55'),
+(48, 1, 'd70bc5f177208785e712dfbf305f34d076ba7115d4ea205a9458b5b8f72ba9740fcc0b480f48345b2f7f7926e999d7f10ea54d0ac53bf6143dbc2c3f7bece601', 0, '::1', '2021-03-20 12:56:25'),
+(49, 1, '12fa13ce368e8ba342e968fa93d4f77246bbe1a34cc96d5335d167e7ecf193d088ab8bd00fa053328e43d55e608df3e90c721f47752cd88833be8d9b3b49a5a4', 0, '::1', '2021-03-21 12:52:46');
 
 --
--- Индексы сохранённых таблиц
+-- Indexes for dumped tables
 --
 
 --
--- Индексы таблицы `accounts`
+-- Indexes for table `accounts`
 --
 ALTER TABLE `accounts`
   ADD PRIMARY KEY (`id`),
@@ -463,121 +482,115 @@ ALTER TABLE `accounts`
   ADD KEY `currency_id` (`currency_id`);
 
 --
--- Индексы таблицы `currencies`
+-- Indexes for table `currencies`
 --
 ALTER TABLE `currencies`
   ADD PRIMARY KEY (`id`);
 
 --
--- Индексы таблицы `permissions`
+-- Indexes for table `permissions`
 --
 ALTER TABLE `permissions`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `name` (`name`);
 
 --
--- Индексы таблицы `roles`
+-- Indexes for table `roles`
 --
 ALTER TABLE `roles`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `name` (`name`);
 
 --
--- Индексы таблицы `transactions`
+-- Indexes for table `transactions`
 --
 ALTER TABLE `transactions`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `uuid` (`uuid`);
 
 --
--- Индексы таблицы `transaction_status`
---
-ALTER TABLE `transaction_status`
-  ADD UNIQUE KEY `transaction_uuid` (`transaction_uuid`);
-
---
--- Индексы таблицы `transaction_types`
+-- Indexes for table `transaction_types`
 --
 ALTER TABLE `transaction_types`
   ADD PRIMARY KEY (`id`);
 
 --
--- Индексы таблицы `users`
+-- Indexes for table `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`uid`),
   ADD UNIQUE KEY `username` (`username`);
 
 --
--- Индексы таблицы `users_log`
+-- Indexes for table `users_log`
 --
 ALTER TABLE `users_log`
   ADD PRIMARY KEY (`id`);
 
 --
--- Индексы таблицы `users_sessions`
+-- Indexes for table `users_sessions`
 --
 ALTER TABLE `users_sessions`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `token` (`token`);
 
 --
--- AUTO_INCREMENT для сохранённых таблиц
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT для таблицы `accounts`
+-- AUTO_INCREMENT for table `accounts`
 --
 ALTER TABLE `accounts`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
--- AUTO_INCREMENT для таблицы `currencies`
+-- AUTO_INCREMENT for table `currencies`
 --
 ALTER TABLE `currencies`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
--- AUTO_INCREMENT для таблицы `permissions`
+-- AUTO_INCREMENT for table `permissions`
 --
 ALTER TABLE `permissions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
--- AUTO_INCREMENT для таблицы `roles`
+-- AUTO_INCREMENT for table `roles`
 --
 ALTER TABLE `roles`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
--- AUTO_INCREMENT для таблицы `transactions`
+-- AUTO_INCREMENT for table `transactions`
 --
 ALTER TABLE `transactions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
--- AUTO_INCREMENT для таблицы `transaction_types`
+-- AUTO_INCREMENT for table `transaction_types`
 --
 ALTER TABLE `transaction_types`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT для таблицы `users`
+-- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
   MODIFY `uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT для таблицы `users_log`
+-- AUTO_INCREMENT for table `users_log`
 --
 ALTER TABLE `users_log`
-  MODIFY `id` bigint(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=120;
+  MODIFY `id` bigint(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=141;
 
 --
--- AUTO_INCREMENT для таблицы `users_sessions`
+-- AUTO_INCREMENT for table `users_sessions`
 --
 ALTER TABLE `users_sessions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
