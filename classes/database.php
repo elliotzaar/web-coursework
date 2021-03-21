@@ -2,16 +2,26 @@
 class Database {
 
   private static function connect() {
-    $pdo = new PDO('mysql:host=localhost;dbname=pyxis', 'root', '');
+    try {
+      $pdo = new PDO('mysql:host=localhost;dbname=webcw', 'root', '');
 
-    $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    } catch (PDOException $e) {
+      header("Location: ./init.php");
+      die();
+    }
 
     return $pdo;
   }
 
   public static function query($query, $params = array()) {
-    $statement = self::connect()->prepare($query);
+    try {
+      $statement = self::connect()->prepare($query);
+    } catch (PDOException $e) {
+      header("Location: ./init.php");
+      die();
+    }
     $statement->execute($params);
 
     $data = $statement->fetchAll();
